@@ -1,6 +1,6 @@
 import java.util.Random;
 
-public class passwordGenerator {
+public class PasswordGenerator {
     public static String generatePassword() {
         int passLength = 12;
 
