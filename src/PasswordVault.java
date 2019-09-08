@@ -1,5 +1,3 @@
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -120,6 +118,10 @@ public class PasswordVault {
 
         PasswordVault passwordVault = new PasswordVault();
 
+        // ========================================
+        // Intro Section
+        // ========================================
+
         System.out.println("Welcome to password master 5000 mark 23!");
 
         System.out.println("Please enter the master password:");
@@ -146,5 +148,12 @@ public class PasswordVault {
             bufferedWriter.write(defaultPassword);
             bufferedWriter.close();
         }
+
+        // ========================================
+        //
+        // ========================================
+
     }
+
+
 }
