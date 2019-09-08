@@ -1,6 +1,9 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Scanner;
 
 public class PasswordVault {
@@ -10,6 +13,8 @@ public class PasswordVault {
     public static Scanner input = new Scanner(System.in);
 
     private String masterPassword;
+
+    public static HashMap<String, Password> listOfPasswords = new HashMap<>();
 
     public PasswordVault(String masterPassword) {
         this.masterPassword = masterPassword;
@@ -63,6 +68,54 @@ public class PasswordVault {
         }
     }
 
+    public String generatePassword() {
+        return "yeahBoi";
+    }
+
+    public void addPassword() {
+        String id, user, password;
+
+        System.out.print("Enter id: ");
+        id = input.nextLine();
+
+        System.out.print("Enter user: ");
+        user = input.nextLine();
+
+        System.out.println("Would you like to generate a password? [Y/n]: ");
+        String response = input.nextLine().toUpperCase();
+
+        if (response.equals("Y") || response.equals("YES")) {
+            password = generatePassword();
+        } else {
+            System.out.println("Enter password: ");
+            password = input.nextLine();
+        }
+
+        Password currentPassword = new Password(id, user, password);
+
+        listOfPasswords.put(id, currentPassword);
+    }
+
+    public void listAllIds() {
+
+    }
+
+    public Password findPassword() {
+        return null;
+    }
+
+    public void sharePassword(String id) {
+
+    }
+
+    public void changeMasterPassword(String newMasterPassword) {
+
+    }
+
+    public void readAllStoredPasswords() {
+
+    }
+
     public static void main(String[] args) throws IOException {
 
         PasswordVault passwordVault = new PasswordVault();
@@ -75,23 +128,23 @@ public class PasswordVault {
 
         try {
             FileReader reader = new FileReader("data.txt");
-            int character;
+            BufferedReader bufferedReader = new BufferedReader(reader);
 
+            // Set first line of txt file as the master password
+            passwordVault.setMasterPassword(bufferedReader.readLine());
 
-            if (reader.read() != -1) {
-                passwordVault.setMasterPassword("");
-            }
+            String line;
 
-            while ((character = reader.read()) != -1) {
-                System.out.print((char) character);
+            while ((line = bufferedReader.readLine()) != null) {
+                System.out.println(line);
             }
             reader.close();
 
         } catch (IOException e) {
-            FileWriter writer = new FileWriter("data.txt");
-            writer.write(defaultPassword);
+            FileWriter writer = new FileWriter("data.txt", true);
+            BufferedWriter bufferedWriter = new BufferedWriter(writer);
+            bufferedWriter.write(defaultPassword);
+            bufferedWriter.close();
         }
-
-
     }
 }
