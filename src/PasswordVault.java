@@ -1,5 +1,6 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -97,19 +98,87 @@ public class PasswordVault {
     }
 
     public void listAllIds() {
-
+        System.out.println("List of ids: ");
+        System.out.println("-------------");
+        for (String id : listOfPasswords.keySet()) {
+            System.out.println(id);
+        }
     }
 
-    public Password findPassword() {
-        return null;
+    public void findPassword() {
     }
 
-    public void sharePassword(String id) {
+    public void sharePassword() {
+        String id, fileName;
+        boolean complete = false;
 
+        while(!complete) {
+            System.out.println("Enter id of password: ");
+            id = input.nextLine();
+
+            if (listOfPasswords.containsKey(id)) {
+
+                System.out.println("Enter file name: ");
+                fileName = input.nextLine();
+
+                try {
+                    FileWriter writer = new FileWriter(fileName + ".txt", true);
+                    BufferedWriter bufferedWriter = new BufferedWriter(writer);
+
+                    Password sharedPassword = listOfPasswords.get(id);
+
+                    bufferedWriter.write("id=" + sharedPassword.getId());
+                    bufferedWriter.newLine();
+                    bufferedWriter.write("user=" + sharedPassword.getUser());
+                    bufferedWriter.newLine();
+                    bufferedWriter.write("password=" + sharedPassword.getPassword());
+                    bufferedWriter.close();
+                } catch (IOException e) {
+                    System.err.println("Error creating shared password file.");
+                    e.printStackTrace();
+                }
+
+                complete = true;
+            } else {
+                System.err.println("Error id not found.");
+            }
+        }
     }
 
-    public void changeMasterPassword(String newMasterPassword) {
+    public void setMasterPassword() {
+        String newMasterPassword;
 
+        System.out.print("Enter new master password: ");
+        newMasterPassword = input.nextLine();
+
+        StringBuilder oldFileContents = new StringBuilder();
+
+        try {
+            FileReader reader = new FileReader("data.txt");
+            BufferedReader bufferedReader = new BufferedReader(reader);
+
+            String line;
+
+            bufferedReader.readLine(); // ignore first line / old master password
+
+            while ((line = bufferedReader.readLine()) != null) {
+                oldFileContents.append(line);
+                oldFileContents.append("\n");
+            }
+            reader.close();
+        } catch (IOException e) {
+            System.err.println("Error reading file contents.");
+            e.printStackTrace();
+        }
+
+        try {
+            FileOutputStream fileOut = new FileOutputStream("data.txt");
+            fileOut.write(newMasterPassword.getBytes());
+            fileOut.write(oldFileContents.toString().getBytes());
+        } catch (IOException e) {
+            System.err.println("Error saving new master password.");
+            e.printStackTrace();
+        }
     }
 
     public void readAllStoredPasswords() {
