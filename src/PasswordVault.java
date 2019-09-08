@@ -3,10 +3,14 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.InputMismatchException;
 import java.util.HashMap;
 import java.util.Scanner;
 
 public class PasswordVault {
+
+    static String lineBreak =
+            "--------------------------------------------------";
 
     public static String defaultPassword = "password";
 
@@ -68,10 +72,6 @@ public class PasswordVault {
         }
     }
 
-    public String generatePassword() {
-        return "yeahBoi";
-    }
-
     public void addPassword() {
         String id, user, password;
 
@@ -85,7 +85,7 @@ public class PasswordVault {
         String response = input.nextLine().toUpperCase();
 
         if (response.equals("Y") || response.equals("YES")) {
-            password = generatePassword();
+            password = PasswordGenerator.generatePassword();
         } else {
             System.out.println("Enter password: ");
             password = input.nextLine();
@@ -157,5 +157,61 @@ public class PasswordVault {
 
     }
 
+    private static void intro() {
+        System.out.println("Welcome to password master 5000 mark 23!");
+
+        System.out.println("Please enter the master password:");
+
+
+    }
+
+    private static void mainMenu() {
+        // Display menu
+        System.out.println(lineBreak);
+        System.out.println("Main Menu");
+        System.out.println();
+        System.out.println("Choose an option.");
+        System.out.println("1) Add Password");
+        System.out.println("2) List Ids");
+        System.out.println("3) Find Password");
+        System.out.println("4) Export Password");
+        System.out.println("5) Change Master Password");
+        System.out.println();
+
+
+        while (true) {
+            try {
+                Scanner in = new Scanner(System.in);
+
+                System.out.print("Your choice? ");
+                int choice = in.nextInt();
+                System.out.println();
+
+                switch (choice) {
+                    case 1:
+                        // TODO Add function for Add Password
+                        break;
+                    case 2:
+                        // TODO Add function for List Ids
+                        break;
+                    case 3:
+                        // TODO Add function for Find Password
+                        break;
+                    case 4:
+                        // TODO Add function for Export Password
+                        break;
+                    case 5:
+                        // TODO Add function for Change Master Password
+                        break;
+                    default:
+                        System.out.println(choice + " is not a valid choice! Please enter a number from 1 to 5.");
+                        break;
+                }
+            } catch (InputMismatchException e) {
+                System.err.println("Not a valid input. Error :" + e.getMessage());
+                continue;
+            }
+        }
+    }
 
 }
