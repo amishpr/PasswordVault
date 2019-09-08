@@ -1,8 +1,4 @@
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.InputMismatchException;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -12,16 +8,16 @@ public class PasswordVault {
     static String lineBreak =
             "--------------------------------------------------";
 
-    public static String defaultPassword = "password";
+    private static String defaultPassword = "password";
 
-    public static Scanner input = new Scanner(System.in);
+    private static Scanner input = new Scanner(System.in);
 
     private String masterPassword;
 
-    public static HashMap<String, Password> listOfPasswords = new HashMap<>();
+    private static HashMap<String, Password> listOfPasswords = new HashMap<>();
 
     public PasswordVault(String masterPassword) {
-        this.masterPassword = masterPassword;
+        setMasterPassword(masterPassword);
     }
 
     public PasswordVault() {
@@ -32,8 +28,91 @@ public class PasswordVault {
         return masterPassword;
     }
 
-    public void setMasterPassword(String masterPassword) {
+    private void setMasterPassword(String masterPassword) {
         this.masterPassword = masterPassword;
+        System.out.println("The Master Password has been changed");
+    }
+
+    private void changeMasterPassword() {
+        if (authUser()) {
+            createMasterPassword();
+        } else {
+            System.out.println("The password you entered was incorrect");
+            mainMenu();
+        }
+    }
+
+    private void createMasterPassword() {
+        System.out.println("Please set the master password");
+        setMasterPassword(input.nextLine());
+    }
+
+    private boolean authUser() {
+        boolean authorized = false;
+
+        System.out.println("Please type the current master password");
+        String attempt = input.nextLine();
+
+        if (attempt.equals(masterPassword)) {
+            authorized = true;
+        }
+
+        return authorized;
+    }
+
+    public void login() {
+        try {
+            FileReader reader = new FileReader("data.txt");
+            BufferedReader bufferedReader = new BufferedReader(reader);
+
+            setMasterPassword(bufferedReader.readLine());
+
+            reader.close();
+
+            if (authUser()) {
+                mainMenu();
+            } else {
+                System.out.println("The password you entered was incorrect");
+                login();
+            }
+
+        } catch (FileNotFoundException e) {
+            signUp();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void signUp() {
+        try {
+            // TODO make sure this works to create file for the first time
+            new FileWriter("data.txt", true);
+//            BufferedWriter bufferedWriter = new BufferedWriter(writer);
+//            bufferedWriter.write(defaultPassword);
+//            bufferedWriter.close();
+            setMasterPassword(defaultPassword);
+
+            System.out.println("The default password sucks... (It's just 'password') Would you like to change it?");
+            System.out.println("1) Yes please!");
+            System.out.println("2) I'm sure it will be fine...");
+
+            Scanner in = new Scanner(System.in);
+
+            System.out.print("Your choice? ");
+            int choice = in.nextInt();
+            System.out.println();
+
+            if (choice == 1) {
+                createMasterPassword();
+            } else {
+                mainMenu();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public class Password {
@@ -108,64 +187,11 @@ public class PasswordVault {
 
     }
 
-    public void changeMasterPassword(String newMasterPassword) {
-
-    }
-
     public void readAllStoredPasswords() {
 
     }
 
-    public static void main(String[] args) throws IOException {
-
-        PasswordVault passwordVault = new PasswordVault();
-
-        // ========================================
-        // Intro Section
-        // ========================================
-
-        System.out.println("Welcome to password master 5000 mark 23!");
-
-        System.out.println("Please enter the master password:");
-
-        String masterPasswordAttempt = input.nextLine();
-
-        try {
-            FileReader reader = new FileReader("data.txt");
-            BufferedReader bufferedReader = new BufferedReader(reader);
-
-            // Set first line of txt file as the master password
-            passwordVault.setMasterPassword(bufferedReader.readLine());
-
-            String line;
-
-            while ((line = bufferedReader.readLine()) != null) {
-                System.out.println(line);
-            }
-            reader.close();
-
-        } catch (IOException e) {
-            FileWriter writer = new FileWriter("data.txt", true);
-            BufferedWriter bufferedWriter = new BufferedWriter(writer);
-            bufferedWriter.write(defaultPassword);
-            bufferedWriter.close();
-        }
-
-        // ========================================
-        //
-        // ========================================
-
-    }
-
-    private static void intro() {
-        System.out.println("Welcome to password master 5000 mark 23!");
-
-        System.out.println("Please enter the master password:");
-
-
-    }
-
-    private static void mainMenu() {
+    public static void mainMenu() {
         // Display menu
         System.out.println(lineBreak);
         System.out.println("Main Menu");
