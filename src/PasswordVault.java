@@ -67,6 +67,10 @@ public class PasswordVault {
 
         PasswordVault passwordVault = new PasswordVault();
 
+        // ========================================
+        // Intro Section
+        // ========================================
+
         System.out.println("Welcome to password master 5000 mark 23!");
 
         System.out.println("Please enter the master password:");
@@ -92,6 +96,11 @@ public class PasswordVault {
             writer.write(defaultPassword);
         }
 
+        // ========================================
+        //
+        // ========================================
 
     }
+
+
 }
