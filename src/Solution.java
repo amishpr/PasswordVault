@@ -18,18 +18,5 @@ public class Solution {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        // How to list every line in a file
-
-        //            String line;
-        //
-        //            while ((line = bufferedReader.readLine()) != null) {
-        //                System.out.println(line);
-        //            }
-
-        // ========================================
-        //
-        // ========================================
-
     }
 }
