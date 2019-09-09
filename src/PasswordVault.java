@@ -283,8 +283,6 @@ public class PasswordVault {
     private void addPassword() {
         System.out.println("Add Password");
         System.out.println("====================");
-        String id, user, password;
-        boolean complete = false;
         boolean complete = false;
 
         while(!complete) {
