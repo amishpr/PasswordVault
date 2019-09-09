@@ -5,9 +5,11 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.HashMap;
 import java.util.Scanner;
+import org.omg.CORBA.ARG_IN;
 
 public class PasswordVault {
 
@@ -101,7 +103,7 @@ public class PasswordVault {
     private void setMasterPassword(String masterPassword) {
         this.masterPassword = masterPassword;
 
-        StringBuffer oldFileContents = new StringBuffer();
+        ArrayList<String> oldFileContents = new ArrayList<>();
 
         try {
             FileReader reader = new FileReader("data.txt");
@@ -112,8 +114,7 @@ public class PasswordVault {
             bufferedReader.readLine(); // ignore first line / old master password
 
             while ((line = bufferedReader.readLine()) != null) {
-                oldFileContents.append(line);
-                oldFileContents.append('\n');
+                oldFileContents.add(line);
             }
             reader.close();
         } catch (IOException e) {
@@ -122,9 +123,18 @@ public class PasswordVault {
         }
 
         try {
-            FileOutputStream fileOut = new FileOutputStream("data.txt");
-            fileOut.write(masterPassword.getBytes());
-            fileOut.write(oldFileContents.toString().getBytes());
+          FileWriter writer = new FileWriter("data.txt");
+          BufferedWriter bufferedWriter = new BufferedWriter(writer);
+
+          bufferedWriter.write(masterPassword);
+          bufferedWriter.newLine();
+
+          for (String line : oldFileContents) {
+            bufferedWriter.write(line);
+            bufferedWriter.newLine();
+          }
+          bufferedWriter.close();
+
         } catch (IOException e) {
             System.err.println("Error saving new master password.");
             e.printStackTrace();
@@ -148,7 +158,7 @@ public class PasswordVault {
     private boolean authUser() {
         boolean authorized = false;
 
-        System.out.println("Please type the current master password");
+        System.out.println("Please type the current master password: ");
         String attempt = input.nextLine();
 
         if (attempt.equals(masterPassword)) {
@@ -268,13 +278,14 @@ public class PasswordVault {
     }
 
     private void addPassword() {
-        String id, user, password;
         boolean complete = false;
 
-        System.out.print("Enter id: ");
-        id = input.nextLine();
-
         while(!complete) {
+            String id, user, password;
+
+            System.out.print("Enter id: ");
+            id = input.nextLine();
+
             if (!listOfPasswords.containsKey(id)) {
                 System.out.print("Enter user: ");
                 user = input.nextLine();
@@ -302,6 +313,7 @@ public class PasswordVault {
                     bufferedWriter.write(user);
                     bufferedWriter.newLine();
                     bufferedWriter.write(password);
+                    bufferedWriter.close();
                 } catch (IOException e) {
                     System.err.println("Error saving password to file.");
                     e.printStackTrace();
