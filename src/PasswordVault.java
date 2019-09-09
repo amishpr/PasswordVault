@@ -131,15 +131,6 @@ public class PasswordVault {
         }
     }
 
-    private void changeMasterPassword() {
-        if (authUser()) {
-            createMasterPassword();
-        } else {
-            System.out.println("The password you entered was incorrect");
-            mainMenu();
-        }
-    }
-
     private void createMasterPassword() {
         System.out.println("Please set the master password");
         setMasterPassword(input.nextLine());
@@ -163,7 +154,8 @@ public class PasswordVault {
             FileReader reader = new FileReader("data.txt");
             BufferedReader bufferedReader = new BufferedReader(reader);
 
-            setMasterPassword(bufferedReader.readLine());
+//            setMasterPassword(bufferedReader.readLine());
+            this.masterPassword = bufferedReader.readLine(); // Temp fix
 
             reader.close();
 
@@ -228,11 +220,14 @@ public class PasswordVault {
         System.out.println("3) Find Password");
         System.out.println("4) Export Password");
         System.out.println("5) Change Master Password");
+        System.out.println("6) Logout");
         System.out.println();
 
         PasswordVault vault = new PasswordVault();
 
-        while (true) {
+        boolean next = false;
+
+        while (!next) {
             try {
                 Scanner in = new Scanner(System.in);
 
@@ -243,18 +238,26 @@ public class PasswordVault {
                 switch (choice) {
                     case 1:
                         vault.addPassword();
+                        next = true;
                         break;
                     case 2:
                         vault.listAllIds();
+                        next = true;
                         break;
                     case 3:
                         vault.findPassword();
+                        next = true;
                         break;
                     case 4:
                         vault.exportPassword();
+                        next = true;
                         break;
                     case 5:
                         vault.changeMasterPassword();
+                        next = true;
+                        break;
+                    case 6:
+                        System.exit(0);
                         break;
                     default:
                         System.out.println(choice + " is not a valid choice! Please enter a number from 1 to 5.");
@@ -265,9 +268,13 @@ public class PasswordVault {
                 continue;
             }
         }
+
+        mainMenu();
     }
 
     private void addPassword() {
+        System.out.println("Add Password");
+        System.out.println("====================");
         String id, user, password;
         boolean complete = false;
 
@@ -315,7 +322,8 @@ public class PasswordVault {
     }
 
     private void listAllIds() {
-        System.out.println("List of ids: ");
+        System.out.println("List of ids");
+        System.out.println("====================");
         System.out.println(lineBreak);
         for (String id : listOfPasswords.keySet()) {
             System.out.println(id);
@@ -323,6 +331,9 @@ public class PasswordVault {
     }
 
     private void findPassword() {
+        System.out.println("Find Password");
+        System.out.println("====================");
+
         String id;
         boolean complete = false;
 
@@ -345,6 +356,9 @@ public class PasswordVault {
     }
 
     private void exportPassword() {
+        System.out.println("Export Password");
+        System.out.println("====================");
+
         String id, fileName;
         boolean complete = false;
 
@@ -378,6 +392,18 @@ public class PasswordVault {
             } else {
                 System.err.println("Error id not found.");
             }
+        }
+    }
+
+    private void changeMasterPassword() {
+        System.out.println("Change Master Password");
+        System.out.println("====================");
+
+        if (authUser()) {
+            createMasterPassword();
+        } else {
+            System.out.println("The password you entered was incorrect");
+            mainMenu();
         }
     }
 }
