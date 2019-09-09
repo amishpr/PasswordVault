@@ -1,4 +1,4 @@
 password
-banking
+youtube
 alice
 sssh!

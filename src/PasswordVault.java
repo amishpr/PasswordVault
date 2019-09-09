@@ -99,12 +99,9 @@ public class PasswordVault {
     }
 
     private void setMasterPassword(String masterPassword) {
-        String newMasterPassword;
+        this.masterPassword = masterPassword;
 
-        System.out.print("Enter new master password: ");
-        newMasterPassword = input.nextLine();
-
-        StringBuilder oldFileContents = new StringBuilder();
+        StringBuffer oldFileContents = new StringBuffer();
 
         try {
             FileReader reader = new FileReader("data.txt");
@@ -116,7 +113,7 @@ public class PasswordVault {
 
             while ((line = bufferedReader.readLine()) != null) {
                 oldFileContents.append(line);
-                oldFileContents.append("\n");
+                oldFileContents.append('\n');
             }
             reader.close();
         } catch (IOException e) {
@@ -126,7 +123,7 @@ public class PasswordVault {
 
         try {
             FileOutputStream fileOut = new FileOutputStream("data.txt");
-            fileOut.write(newMasterPassword.getBytes());
+            fileOut.write(masterPassword.getBytes());
             fileOut.write(oldFileContents.toString().getBytes());
         } catch (IOException e) {
             System.err.println("Error saving new master password.");
@@ -171,6 +168,7 @@ public class PasswordVault {
             reader.close();
 
             if (authUser()) {
+                readAllStoredPasswords();
                 mainMenu();
             } else {
                 System.out.println("The password you entered was incorrect");
@@ -232,6 +230,7 @@ public class PasswordVault {
         System.out.println("5) Change Master Password");
         System.out.println();
 
+        PasswordVault vault = new PasswordVault();
 
         while (true) {
             try {
@@ -243,19 +242,19 @@ public class PasswordVault {
 
                 switch (choice) {
                     case 1:
-                        // TODO Add function for Add Password
+                        vault.addPassword();
                         break;
                     case 2:
-                        // TODO Add function for List Ids
+                        vault.listAllIds();
                         break;
                     case 3:
-                        // TODO Add function for Find Password
+                        vault.findPassword();
                         break;
                     case 4:
-                        // TODO Add function for Export Password
+                        vault.exportPassword();
                         break;
                     case 5:
-                        // TODO Add function for Change Master Password
+                        vault.changeMasterPassword();
                         break;
                     default:
                         System.out.println(choice + " is not a valid choice! Please enter a number from 1 to 5.");
@@ -268,7 +267,7 @@ public class PasswordVault {
         }
     }
 
-    public void addPassword() {
+    private void addPassword() {
         String id, user, password;
         boolean complete = false;
 
@@ -315,7 +314,7 @@ public class PasswordVault {
         }
     }
 
-    public void listAllIds() {
+    private void listAllIds() {
         System.out.println("List of ids: ");
         System.out.println(lineBreak);
         for (String id : listOfPasswords.keySet()) {
@@ -323,7 +322,7 @@ public class PasswordVault {
         }
     }
 
-    public void findPassword() {
+    private void findPassword() {
         String id;
         boolean complete = false;
 
@@ -345,7 +344,7 @@ public class PasswordVault {
         }
     }
 
-    public void sharePassword() {
+    private void exportPassword() {
         String id, fileName;
         boolean complete = false;
 
