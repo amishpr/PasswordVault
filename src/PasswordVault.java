@@ -147,7 +147,7 @@ public class PasswordVault {
     private boolean authUser() {
         boolean authorized = false;
 
-        System.out.println("Please type the current master password: ");
+        System.out.println("Please type the current master password:");
         String attempt = input.nextLine();
 
         if (attempt.equals(masterPassword)) {
@@ -237,7 +237,8 @@ public class PasswordVault {
             try {
 
                 System.out.print("Your choice: ");
-                int choice = input.nextInt();
+                Scanner in = new Scanner(System.in);
+                int choice = in.nextInt();
                 System.out.println();
 
                 switch (choice) {
