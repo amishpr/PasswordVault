@@ -11,7 +11,7 @@ import java.util.Scanner;
 
 public class PasswordVault {
 
-    static String lineBreak =
+    private static String lineBreak =
             "--------------------------------------------------";
 
     private static String defaultPassword = "password";
@@ -30,13 +30,88 @@ public class PasswordVault {
 
     }
 
+    public class Password {
+        String id;
+        String user;
+        String password;
+
+        public Password(String id, String user, String password) {
+            this.id = id;
+            this.user = user;
+            this.password = password;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public String getUser() {
+            return user;
+        }
+
+        public void setUser(String user) {
+            this.user = user;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+    }
+
+    public void readAllStoredPasswords() {
+
+    }
+
+    // ========================================
+    // Authorization
+    // ========================================
+
     public String getMasterPassword() {
         return masterPassword;
     }
 
     private void setMasterPassword(String masterPassword) {
-        this.masterPassword = masterPassword;
-        System.out.println("The Master Password has been changed");
+        String newMasterPassword;
+
+        System.out.print("Enter new master password: ");
+        newMasterPassword = input.nextLine();
+
+        StringBuilder oldFileContents = new StringBuilder();
+
+        try {
+            FileReader reader = new FileReader("data.txt");
+            BufferedReader bufferedReader = new BufferedReader(reader);
+
+            String line;
+
+            bufferedReader.readLine(); // ignore first line / old master password
+
+            while ((line = bufferedReader.readLine()) != null) {
+                oldFileContents.append(line);
+                oldFileContents.append("\n");
+            }
+            reader.close();
+        } catch (IOException e) {
+            System.err.println("Error reading file contents.");
+            e.printStackTrace();
+        }
+
+        try {
+            FileOutputStream fileOut = new FileOutputStream("data.txt");
+            fileOut.write(newMasterPassword.getBytes());
+            fileOut.write(oldFileContents.toString().getBytes());
+        } catch (IOException e) {
+            System.err.println("Error saving new master password.");
+            e.printStackTrace();
+        }
     }
 
     private void changeMasterPassword() {
@@ -92,12 +167,11 @@ public class PasswordVault {
 
     public void signUp() {
         try {
-            // TODO make sure this works to create file for the first time
-            new FileWriter("data.txt", true);
-//            BufferedWriter bufferedWriter = new BufferedWriter(writer);
-//            bufferedWriter.write(defaultPassword);
-//            bufferedWriter.close();
-            setMasterPassword(defaultPassword);
+            FileWriter writer = new FileWriter("data.txt", true);
+            BufferedWriter bufferedWriter = new BufferedWriter(writer);
+            bufferedWriter.write(defaultPassword);
+            bufferedWriter.close();
+            this.masterPassword = defaultPassword;
 
             System.out.println("The default password sucks... (It's just 'password') Would you like to change it?");
             System.out.println("1) Yes please!");
@@ -121,39 +195,56 @@ public class PasswordVault {
 
     }
 
-    public class Password {
-        String id;
-        String user;
-        String password;
+    // ========================================
+    // Main Menu and Options
+    // ========================================
 
-        public Password(String id, String user, String password) {
-            this.id = id;
-            this.user = user;
-            this.password = password;
-        }
+    public static void mainMenu() {
+        // Display menu
+        System.out.println(lineBreak);
+        System.out.println("Main Menu");
+        System.out.println();
+        System.out.println("Choose an option.");
+        System.out.println("1) Add Password");
+        System.out.println("2) List Ids");
+        System.out.println("3) Find Password");
+        System.out.println("4) Export Password");
+        System.out.println("5) Change Master Password");
+        System.out.println();
 
-        public String getId() {
-            return id;
-        }
 
-        public void setId(String id) {
-            this.id = id;
-        }
+        while (true) {
+            try {
+                Scanner in = new Scanner(System.in);
 
-        public String getUser() {
-            return user;
-        }
+                System.out.print("Your choice? ");
+                int choice = in.nextInt();
+                System.out.println();
 
-        public void setUser(String user) {
-            this.user = user;
-        }
-
-        public String getPassword() {
-            return password;
-        }
-
-        public void setPassword(String password) {
-            this.password = password;
+                switch (choice) {
+                    case 1:
+                        // TODO Add function for Add Password
+                        break;
+                    case 2:
+                        // TODO Add function for List Ids
+                        break;
+                    case 3:
+                        // TODO Add function for Find Password
+                        break;
+                    case 4:
+                        // TODO Add function for Export Password
+                        break;
+                    case 5:
+                        // TODO Add function for Change Master Password
+                        break;
+                    default:
+                        System.out.println(choice + " is not a valid choice! Please enter a number from 1 to 5.");
+                        break;
+                }
+            } catch (InputMismatchException e) {
+                System.err.println("Not a valid input. Error :" + e.getMessage());
+                continue;
+            }
         }
     }
 
@@ -225,95 +316,6 @@ public class PasswordVault {
                 complete = true;
             } else {
                 System.err.println("Error id not found.");
-            }
-        }
-    }
-
-    public void setMasterPassword() {
-        String newMasterPassword;
-
-        System.out.print("Enter new master password: ");
-        newMasterPassword = input.nextLine();
-
-        StringBuilder oldFileContents = new StringBuilder();
-
-        try {
-            FileReader reader = new FileReader("data.txt");
-            BufferedReader bufferedReader = new BufferedReader(reader);
-
-            String line;
-
-            bufferedReader.readLine(); // ignore first line / old master password
-
-            while ((line = bufferedReader.readLine()) != null) {
-                oldFileContents.append(line);
-                oldFileContents.append("\n");
-            }
-            reader.close();
-        } catch (IOException e) {
-            System.err.println("Error reading file contents.");
-            e.printStackTrace();
-        }
-
-        try {
-            FileOutputStream fileOut = new FileOutputStream("data.txt");
-            fileOut.write(newMasterPassword.getBytes());
-            fileOut.write(oldFileContents.toString().getBytes());
-        } catch (IOException e) {
-            System.err.println("Error saving new master password.");
-            e.printStackTrace();
-        }
-    }
-
-    public void readAllStoredPasswords() {
-
-    }
-
-    public static void mainMenu() {
-        // Display menu
-        System.out.println(lineBreak);
-        System.out.println("Main Menu");
-        System.out.println();
-        System.out.println("Choose an option.");
-        System.out.println("1) Add Password");
-        System.out.println("2) List Ids");
-        System.out.println("3) Find Password");
-        System.out.println("4) Export Password");
-        System.out.println("5) Change Master Password");
-        System.out.println();
-
-
-        while (true) {
-            try {
-                Scanner in = new Scanner(System.in);
-
-                System.out.print("Your choice? ");
-                int choice = in.nextInt();
-                System.out.println();
-
-                switch (choice) {
-                    case 1:
-                        // TODO Add function for Add Password
-                        break;
-                    case 2:
-                        // TODO Add function for List Ids
-                        break;
-                    case 3:
-                        // TODO Add function for Find Password
-                        break;
-                    case 4:
-                        // TODO Add function for Export Password
-                        break;
-                    case 5:
-                        // TODO Add function for Change Master Password
-                        break;
-                    default:
-                        System.out.println(choice + " is not a valid choice! Please enter a number from 1 to 5.");
-                        break;
-                }
-            } catch (InputMismatchException e) {
-                System.err.println("Not a valid input. Error :" + e.getMessage());
-                continue;
             }
         }
     }
