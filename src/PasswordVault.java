@@ -159,37 +159,79 @@ public class PasswordVault {
 
     public void addPassword() {
         String id, user, password;
+        boolean complete = false;
 
         System.out.print("Enter id: ");
         id = input.nextLine();
 
-        System.out.print("Enter user: ");
-        user = input.nextLine();
+        while(!complete) {
+            if (!listOfPasswords.containsKey(id)) {
+                System.out.print("Enter user: ");
+                user = input.nextLine();
 
-        System.out.println("Would you like to generate a password? [Y/n]: ");
-        String response = input.nextLine().toUpperCase();
+                System.out.println("Would you like to generate a password? [Y/n]: ");
+                String response = input.nextLine().toUpperCase();
 
-        if (response.equals("Y") || response.equals("YES")) {
-            password = PasswordGenerator.generatePassword();
-        } else {
-            System.out.println("Enter password: ");
-            password = input.nextLine();
+                if (response.equals("Y") || response.equals("YES")) {
+                    password = PasswordGenerator.generatePassword();
+                } else {
+                    System.out.println("Enter password: ");
+                    password = input.nextLine();
+                }
+
+                Password currentPassword = new Password(id, user, password);
+
+                listOfPasswords.put(id, currentPassword);
+
+                try {
+                    FileWriter writer = new FileWriter( "data.txt", true);
+                    BufferedWriter bufferedWriter = new BufferedWriter(writer);
+
+                    bufferedWriter.write(id);
+                    bufferedWriter.newLine();
+                    bufferedWriter.write(user);
+                    bufferedWriter.newLine();
+                    bufferedWriter.write(password);
+                } catch (IOException e) {
+                    System.err.println("Error saving password to file.");
+                    e.printStackTrace();
+                }
+
+                complete = true;
+            } else {
+                System.err.println("Error id already exists!");
+            }
         }
-
-        Password currentPassword = new Password(id, user, password);
-
-        listOfPasswords.put(id, currentPassword);
     }
 
     public void listAllIds() {
         System.out.println("List of ids: ");
-        System.out.println("-------------");
+        System.out.println(lineBreak);
         for (String id : listOfPasswords.keySet()) {
             System.out.println(id);
         }
     }
 
     public void findPassword() {
+        String id;
+        boolean complete = false;
+
+        while(!complete) {
+            System.out.println("Enter id of password: ");
+            id = input.nextLine();
+
+            if (listOfPasswords.containsKey(id)) {
+                Password foundPassword = listOfPasswords.get(id);
+
+                System.out.println("id = " + foundPassword.getId());
+                System.out.println("user = " + foundPassword.getUser());
+                System.out.println("password = " + foundPassword.getPassword());
+
+                complete = true;
+            } else {
+                System.err.println("Error id not found.");
+            }
+        }
     }
 
     public void sharePassword() {
@@ -266,7 +308,27 @@ public class PasswordVault {
     }
 
     public void readAllStoredPasswords() {
+        try {
+            FileReader reader = new FileReader("data.txt");
+            BufferedReader bufferedReader = new BufferedReader(reader);
 
+            String line;
+
+            bufferedReader.readLine(); // ignore first line / old master password
+
+            while ((line = bufferedReader.readLine()) != null) {
+                String id = line;
+                String user = bufferedReader.readLine();
+                String password = bufferedReader.readLine();
+
+                Password currentPassword = new Password(id, user, password);
+                listOfPasswords.put(id, currentPassword);
+            }
+            reader.close();
+        } catch (IOException e) {
+            System.err.println("Error loading data file.");
+            e.printStackTrace();
+        }
     }
 
     public static void mainMenu() {
