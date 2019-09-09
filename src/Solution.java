@@ -1,3 +1,10 @@
+/*
+ *   Christian Overton (cto5068@psu.edu) & Amish Prajapati (avp5564@psu.edu)
+ *   Assignment 1
+ *   CMPSC 444
+ *   09/12/19
+ */
+
 import java.io.*;
 
 public class Solution {

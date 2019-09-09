@@ -1,3 +1,10 @@
+/*
+ *   Christian Overton (cto5068@psu.edu) & Amish Prajapati (avp5564@psu.edu)
+ *   Assignment 1
+ *   CMPSC 444
+ *   09/12/19
+ */
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
@@ -187,6 +194,7 @@ public class PasswordVault {
             FileWriter writer = new FileWriter("data.txt", true);
             BufferedWriter bufferedWriter = new BufferedWriter(writer);
             bufferedWriter.write(defaultPassword);
+            bufferedWriter.newLine();
             bufferedWriter.close();
             masterPassword = defaultPassword;
 
@@ -196,7 +204,7 @@ public class PasswordVault {
 
             Scanner in = new Scanner(System.in);
 
-            System.out.print("Your choice? ");
+            System.out.print("Your choice: ");
             int choice = in.nextInt();
             System.out.println();
 
@@ -226,7 +234,7 @@ public class PasswordVault {
         System.out.println("3) Find Password");
         System.out.println("4) Export Password");
         System.out.println("5) Change Master Password");
-        System.out.println("6) Logout");
+        System.out.println("6) Exit");
         System.out.println();
 
         PasswordVault vault = new PasswordVault();
@@ -266,7 +274,7 @@ public class PasswordVault {
                         System.exit(0);
                         break;
                     default:
-                        System.out.println(choice + " is not a valid choice! Please enter a number from 1 to 5.");
+                        System.out.println(choice + " is not a valid choice! Please enter a number from 1 to 6.");
                         break;
                 }
             } catch (InputMismatchException e) {
