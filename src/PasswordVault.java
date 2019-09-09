@@ -18,7 +18,7 @@ public class PasswordVault {
 
     private static Scanner input = new Scanner(System.in);
 
-    private String masterPassword;
+    private static String masterPassword;
 
     private static HashMap<String, Password> listOfPasswords = new HashMap<>();
 
@@ -98,8 +98,8 @@ public class PasswordVault {
         return masterPassword;
     }
 
-    private void setMasterPassword(String masterPassword) {
-        this.masterPassword = masterPassword;
+    private void setMasterPassword(String pass) {
+        masterPassword = pass;
 
         ArrayList<String> oldFileContents = new ArrayList<>();
 
@@ -162,8 +162,7 @@ public class PasswordVault {
             FileReader reader = new FileReader("data.txt");
             BufferedReader bufferedReader = new BufferedReader(reader);
 
-//            setMasterPassword(bufferedReader.readLine());
-            this.masterPassword = bufferedReader.readLine(); // Temp fix
+            setMasterPassword(bufferedReader.readLine());
 
             reader.close();
 
@@ -189,7 +188,7 @@ public class PasswordVault {
             BufferedWriter bufferedWriter = new BufferedWriter(writer);
             bufferedWriter.write(defaultPassword);
             bufferedWriter.close();
-            this.masterPassword = defaultPassword;
+            masterPassword = defaultPassword;
 
             System.out.println("The default password sucks... (It's just 'password') Would you like to change it?");
             System.out.println("1) Yes please!");
@@ -203,9 +202,8 @@ public class PasswordVault {
 
             if (choice == 1) {
                 createMasterPassword();
-            } else {
-                mainMenu();
             }
+            mainMenu();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -237,10 +235,9 @@ public class PasswordVault {
 
         while (!next) {
             try {
-                Scanner in = new Scanner(System.in);
 
-                System.out.print("Your choice? ");
-                int choice = in.nextInt();
+                System.out.print("Your choice: ");
+                int choice = input.nextInt();
                 System.out.println();
 
                 switch (choice) {
