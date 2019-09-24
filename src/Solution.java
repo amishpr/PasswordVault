@@ -13,7 +13,7 @@ public class Solution {
 
         PasswordVault passwordVault = new PasswordVault();
 
-        System.out.println("Welcome to password master 5000 mark 23!");
+        System.out.println("Welcome to password master 5000 mark 24!");
 
         try {
             FileReader reader = new FileReader("data.txt");
