@@ -35,7 +35,9 @@ public class PasswordVault {
 
     private static HashMap<String, Password> listOfPasswords = new HashMap<>();
 
-    public PasswordVault(String masterPassword) {
+    public PasswordVault(String masterPassword)
+        throws InvalidKeyException, BadPaddingException, NoSuchAlgorithmException,
+        IllegalBlockSizeException, NoSuchPaddingException {
         setMasterPassword(masterPassword);
     }
 
@@ -121,7 +123,9 @@ public class PasswordVault {
         return masterPassword;
     }
 
-    private void setMasterPassword(String pass) {
+    private void setMasterPassword(String pass)
+        throws IllegalBlockSizeException, InvalidKeyException, BadPaddingException,
+        NoSuchAlgorithmException, NoSuchPaddingException {
         masterPassword = pass;
 
         ArrayList<String> oldFileContents = new ArrayList<>();
@@ -147,7 +151,15 @@ public class PasswordVault {
           FileWriter writer = new FileWriter("data.txt");
           BufferedWriter bufferedWriter = new BufferedWriter(writer);
 
-          bufferedWriter.write(masterPassword);
+          EncryptedText encryptedMasterPassword = Encrypt.encryptText(masterPassword);
+
+          bufferedWriter.write(encryptedMasterPassword.getCipherText());
+          bufferedWriter.newLine();
+
+          bufferedWriter.write(encryptedMasterPassword.getInitializationVector());
+          bufferedWriter.newLine();
+
+          bufferedWriter.write(encryptedMasterPassword.getSecretKey());
           bufferedWriter.newLine();
 
           for (String line : oldFileContents) {
@@ -162,7 +174,9 @@ public class PasswordVault {
         }
     }
 
-    private void createMasterPassword() {
+    private void createMasterPassword()
+        throws InvalidKeyException, BadPaddingException, NoSuchAlgorithmException,
+        IllegalBlockSizeException, NoSuchPaddingException {
         System.out.println("Please set the master password");
         setMasterPassword(input.nextLine());
     }
@@ -187,7 +201,13 @@ public class PasswordVault {
             FileReader reader = new FileReader("data.txt");
             BufferedReader bufferedReader = new BufferedReader(reader);
 
-            setMasterPassword(bufferedReader.readLine());
+            String masterPwd = bufferedReader.readLine();
+            String iv = bufferedReader.readLine();
+            String secretKey = bufferedReader.readLine();
+
+            String decryptedPwd = Decrypt.decryptText(masterPwd, iv, secretKey);
+
+            setMasterPassword(decryptedPwd);
 
             reader.close();
 
