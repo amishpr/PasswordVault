@@ -6,10 +6,18 @@
  */
 
 import java.io.*;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 
 public class Solution {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args)
+        throws NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException,
+        IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
 
         PasswordVault passwordVault = new PasswordVault();
 
