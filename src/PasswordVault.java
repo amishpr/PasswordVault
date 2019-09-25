@@ -11,21 +11,30 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.InputMismatchException;
-import java.util.HashMap;
-import java.util.Scanner;
+import java.sql.Timestamp;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class PasswordVault {
 
+    // ========================================
+    // Config
+    // ========================================
     private static String lineBreak =
             "--------------------------------------------------";
 
     private static int attemptLimit = 5;
+    private static int sessionTimeLimit = 1; // in minutes
+
+    // ========================================
+    // Globals
+    // ========================================
 
     private static Scanner input = new Scanner(System.in);
 
     private static String masterPassword;
+    private static Timer timer = new Timer();
+    private static Timestamp endSession;
 
     private static HashMap<String, Password> listOfPasswords = new HashMap<>();
 
@@ -34,7 +43,6 @@ public class PasswordVault {
     }
 
     public PasswordVault() {
-
     }
 
     public class Password {
@@ -213,6 +221,8 @@ public class PasswordVault {
     // ========================================
 
     public static void mainMenu() {
+        extendSession();
+
         // Display menu
         System.out.println(lineBreak);
         System.out.println("Main Menu");
@@ -339,64 +349,76 @@ public class PasswordVault {
         System.out.println("Find Password");
         System.out.println("====================");
 
-        String id;
-        boolean complete = false;
+        if (authUser()) {
+            String id;
+            boolean complete = false;
 
-        while(!complete) {
-            System.out.println("Enter id of password: ");
-            id = input.nextLine();
+            while(!complete) {
+                System.out.println("Enter id of password: ");
+                id = input.nextLine();
 
-            if (listOfPasswords.containsKey(id)) {
-                Password foundPassword = listOfPasswords.get(id);
+                if (listOfPasswords.containsKey(id)) {
+                    Password foundPassword = listOfPasswords.get(id);
 
-                System.out.println("id = " + foundPassword.getId());
-                System.out.println("user = " + foundPassword.getUser());
-                System.out.println("password = " + foundPassword.getPassword());
+                    System.out.println("id = " + foundPassword.getId());
+                    System.out.println("user = " + foundPassword.getUser());
+                    System.out.println("password = " + foundPassword.getPassword());
 
-                complete = true;
-            } else {
-                System.err.println("Error id not found.");
+                    complete = true;
+                } else {
+                    System.err.println("Error id not found.");
+                }
             }
+        } else {
+            System.out.println("The password you entered was incorrect");
+            mainMenu();
         }
+
+
     }
 
     private void exportPassword() {
         System.out.println("Export Password");
         System.out.println("====================");
 
-        String id, fileName;
-        boolean complete = false;
+        if (authUser()) {
+            String id, fileName;
+            boolean complete = false;
 
-        while(!complete) {
-            System.out.println("Enter id of password: ");
-            id = input.nextLine();
+            while(!complete) {
+                System.out.println("Enter id of password: ");
+                id = input.nextLine();
 
-            if (listOfPasswords.containsKey(id)) {
+                if (listOfPasswords.containsKey(id)) {
 
-                System.out.println("Enter file name: ");
-                fileName = input.nextLine();
+                    System.out.println("Enter file name: ");
+                    fileName = input.nextLine();
 
-                try {
-                    FileWriter writer = new FileWriter(fileName + ".txt", true);
-                    BufferedWriter bufferedWriter = new BufferedWriter(writer);
+                    try {
+                        FileWriter writer = new FileWriter(fileName + ".txt", true);
+                        BufferedWriter bufferedWriter = new BufferedWriter(writer);
 
-                    Password sharedPassword = listOfPasswords.get(id);
+                        Password sharedPassword = listOfPasswords.get(id);
 
-                    bufferedWriter.write("id=" + sharedPassword.getId());
-                    bufferedWriter.newLine();
-                    bufferedWriter.write("user=" + sharedPassword.getUser());
-                    bufferedWriter.newLine();
-                    bufferedWriter.write("password=" + sharedPassword.getPassword());
-                    bufferedWriter.close();
-                } catch (IOException e) {
-                    System.err.println("Error creating shared password file.");
-                    e.printStackTrace();
+                        bufferedWriter.write("id=" + sharedPassword.getId());
+                        bufferedWriter.newLine();
+                        bufferedWriter.write("user=" + sharedPassword.getUser());
+                        bufferedWriter.newLine();
+                        bufferedWriter.write("password=" + sharedPassword.getPassword());
+                        bufferedWriter.close();
+                    } catch (IOException e) {
+                        System.err.println("Error creating shared password file.");
+                        e.printStackTrace();
+                    }
+
+                    complete = true;
+                } else {
+                    System.err.println("Error id not found.");
                 }
-
-                complete = true;
-            } else {
-                System.err.println("Error id not found.");
             }
+        } else {
+            System.out.println("The password you entered was incorrect");
+            mainMenu();
         }
     }
 
@@ -409,6 +431,27 @@ public class PasswordVault {
         } else {
             System.out.println("The password you entered was incorrect");
             mainMenu();
+        }
+    }
+
+    // ========================================
+    // Session Timeout
+    // ========================================
+
+    private static void extendSession() {
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        endSession = new Timestamp(now.getTime() + TimeUnit.MINUTES.toMillis(sessionTimeLimit));
+        TimerTask task = new checkActiveSession();
+        timer.schedule(task, TimeUnit.MINUTES.toMillis(sessionTimeLimit));
+    }
+
+    private static class checkActiveSession extends TimerTask {
+        public void run() {
+            Timestamp now = new Timestamp(System.currentTimeMillis());
+            if (endSession.getTime() <= now.getTime()) {
+                System.out.println("Your Session has timed out");
+                System.exit(-1);
+            }
         }
     }
 }

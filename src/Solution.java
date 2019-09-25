@@ -1,8 +1,8 @@
 /*
  *   Christian Overton (cto5068@psu.edu) & Amish Prajapati (avp5564@psu.edu)
- *   Assignment 1
+ *   Assignment 2
  *   CMPSC 444
- *   09/12/19
+ *   09/26/19
  */
 
 import java.io.*;
@@ -19,7 +19,6 @@ public class Solution {
             FileReader reader = new FileReader("data.txt");
             reader.close();
             passwordVault.login();
-
         } catch (FileNotFoundException e) {
             passwordVault.signUp();
         } catch (IOException e) {
