@@ -21,7 +21,7 @@ public class PasswordVault {
     private static String lineBreak =
             "--------------------------------------------------";
 
-    private static String defaultPassword = "password";
+    private static int attemptLimit = 5;
 
     private static Scanner input = new Scanner(System.in);
 
@@ -152,16 +152,23 @@ public class PasswordVault {
     }
 
     private boolean authUser() {
-        boolean authorized = false;
-
         System.out.println("Please type the current master password:");
-        String attempt = input.nextLine();
 
-        if (attempt.equals(masterPassword)) {
-            authorized = true;
+
+        while (attemptLimit > 0) {
+            String attempt = input.nextLine();
+            if (attempt.equals(masterPassword)) {
+                return true;
+            } else {
+                attemptLimit--;
+                System.out.println("Unfortunately that password is incorrect, you have " + attemptLimit + " attempt" + ((attemptLimit == 1) ? "" : "s") + " left");
+
+            }
         }
 
-        return authorized;
+        System.out.println("You have reached your maximum allowed attempts, the program will now exit");
+        System.exit(-1);
+        return false;
     }
 
     public void login() {
@@ -192,31 +199,13 @@ public class PasswordVault {
     public void signUp() {
         try {
             FileWriter writer = new FileWriter("data.txt", true);
-            BufferedWriter bufferedWriter = new BufferedWriter(writer);
-            bufferedWriter.write(defaultPassword);
-            bufferedWriter.newLine();
-            bufferedWriter.close();
-            masterPassword = defaultPassword;
-
-            System.out.println("The default password sucks... (It's just 'password') Would you like to change it?");
-            System.out.println("1) Yes please!");
-            System.out.println("2) I'm sure it will be fine...");
-
-            Scanner in = new Scanner(System.in);
-
-            System.out.print("Your choice: ");
-            int choice = in.nextInt();
-            System.out.println();
-
-            if (choice == 1) {
-                createMasterPassword();
-            }
+            System.out.println("Looks like this is your first time");
+            createMasterPassword();
             mainMenu();
 
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     // ========================================
