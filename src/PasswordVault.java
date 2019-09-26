@@ -14,6 +14,16 @@ import java.io.*;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.InputMismatchException;
+import java.util.HashMap;
+import java.util.Scanner;
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 
 public class PasswordVault {
 
@@ -38,50 +48,61 @@ public class PasswordVault {
 
     private static HashMap<String, Password> listOfPasswords = new HashMap<>();
 
-    public PasswordVault(String masterPassword) {
+    public PasswordVault(String masterPassword)
+        throws InvalidKeyException, BadPaddingException, NoSuchAlgorithmException,
+        IllegalBlockSizeException, NoSuchPaddingException {
         setMasterPassword(masterPassword);
     }
 
     public PasswordVault() {
+
     }
 
     public class Password {
         String id;
         String user;
         String password;
+        String iv;
+        String secretKey;
 
-        public Password(String id, String user, String password) {
+        public Password(String id, String user, String password, String iv, String secretKey) {
             this.id = id;
             this.user = user;
             this.password = password;
+            this.iv = iv;
+            this.secretKey = secretKey;
         }
 
         public String getId() {
             return id;
         }
 
-        public void setId(String id) {
-            this.id = id;
-        }
-
         public String getUser() {
             return user;
-        }
-
-        public void setUser(String user) {
-            this.user = user;
         }
 
         public String getPassword() {
             return password;
         }
 
-        public void setPassword(String password) {
-            this.password = password;
+        public String getIv() {
+            return iv;
+        }
+
+        public String getSecretKey() {
+            return secretKey;
+        }
+
+        public String getDecryptedPassword()
+            throws NoSuchPaddingException, BadPaddingException, InvalidAlgorithmParameterException,
+            NoSuchAlgorithmException, IllegalBlockSizeException,
+            UnsupportedEncodingException, InvalidKeyException
+        {
+            return Decrypt.decryptText(password, iv, secretKey);
         }
     }
 
-    public void readAllStoredPasswords() {
+    private void readAllStoredPasswords() {
         try {
           FileReader reader = new FileReader("data.txt");
           BufferedReader bufferedReader = new BufferedReader(reader);
@@ -94,8 +115,10 @@ public class PasswordVault {
             String id = line;
             String user = bufferedReader.readLine();
             String password = bufferedReader.readLine();
+            String iv = bufferedReader.readLine();
+            String secretKey = bufferedReader.readLine();
 
-            Password currentPassword = new Password(id, user, password);
+            Password currentPassword = new Password(id, user, password, iv, secretKey);
             listOfPasswords.put(id, currentPassword);
           }
           reader.close();
@@ -113,7 +136,9 @@ public class PasswordVault {
         return masterPassword;
     }
 
-    private void setMasterPassword(String pass) {
+    private void setMasterPassword(String pass)
+        throws IllegalBlockSizeException, InvalidKeyException, BadPaddingException,
+        NoSuchAlgorithmException, NoSuchPaddingException {
         masterPassword = pass;
 
         ArrayList<String> oldFileContents = new ArrayList<>();
@@ -139,7 +164,15 @@ public class PasswordVault {
           FileWriter writer = new FileWriter("data.txt");
           BufferedWriter bufferedWriter = new BufferedWriter(writer);
 
-          bufferedWriter.write(masterPassword);
+          EncryptedText encryptedMasterPassword = Encrypt.encryptText(masterPassword);
+
+          bufferedWriter.write(encryptedMasterPassword.getCipherText());
+          bufferedWriter.newLine();
+
+          bufferedWriter.write(encryptedMasterPassword.getInitializationVector());
+          bufferedWriter.newLine();
+
+          bufferedWriter.write(encryptedMasterPassword.getSecretKey());
           bufferedWriter.newLine();
 
           for (String line : oldFileContents) {
@@ -154,7 +187,9 @@ public class PasswordVault {
         }
     }
 
-    private void createMasterPassword() {
+    private void createMasterPassword()
+        throws InvalidKeyException, BadPaddingException, NoSuchAlgorithmException,
+        IllegalBlockSizeException, NoSuchPaddingException {
         System.out.println("Please set the master password");
         setMasterPassword(input.nextLine());
     }
@@ -179,12 +214,20 @@ public class PasswordVault {
         return false;
     }
 
-    public void login() {
+    public void login()
+        throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException,
+        IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
         try {
             FileReader reader = new FileReader("data.txt");
             BufferedReader bufferedReader = new BufferedReader(reader);
 
-            setMasterPassword(bufferedReader.readLine());
+            String masterPwd = bufferedReader.readLine();
+            String iv = bufferedReader.readLine();
+            String secretKey = bufferedReader.readLine();
+
+            String decryptedPwd = Decrypt.decryptText(masterPwd, iv, secretKey);
+
+            setMasterPassword(decryptedPwd);
 
             reader.close();
 
@@ -204,7 +247,10 @@ public class PasswordVault {
 
     }
 
-    public void signUp() {
+    public void signUp()
+        throws NoSuchPaddingException, IllegalBlockSizeException,
+        BadPaddingException, NoSuchAlgorithmException, InvalidKeyException,
+        InvalidAlgorithmParameterException {
         try {
             FileWriter writer = new FileWriter("data.txt", true);
             System.out.println("Looks like this is your first time");
@@ -220,7 +266,11 @@ public class PasswordVault {
     // Main Menu and Options
     // ========================================
 
-    public static void mainMenu() {
+    public static void mainMenu()
+        throws NoSuchPaddingException, UnsupportedEncodingException, IllegalBlockSizeException,
+        BadPaddingException, NoSuchAlgorithmException, InvalidKeyException,
+        InvalidAlgorithmParameterException
+    {
         extendSession();
 
         // Display menu
@@ -285,7 +335,10 @@ public class PasswordVault {
         mainMenu();
     }
 
-    private void addPassword() {
+    private void addPassword()
+        throws NoSuchPaddingException, UnsupportedEncodingException, NoSuchAlgorithmException,
+        IllegalBlockSizeException, BadPaddingException, InvalidKeyException
+    {
         System.out.println("Add Password");
         System.out.println("====================");
         boolean complete = false;
@@ -310,7 +363,12 @@ public class PasswordVault {
                     password = input.nextLine();
                 }
 
-                Password currentPassword = new Password(id, user, password);
+                EncryptedText encryptedCurrentPassword = Encrypt.encryptText(password);
+
+                Password currentPassword = new Password(id, user,
+                    encryptedCurrentPassword.getCipherText(),
+                    encryptedCurrentPassword.getInitializationVector(),
+                    encryptedCurrentPassword.getSecretKey());
 
                 listOfPasswords.put(id, currentPassword);
 
@@ -322,7 +380,11 @@ public class PasswordVault {
                     bufferedWriter.newLine();
                     bufferedWriter.write(user);
                     bufferedWriter.newLine();
-                    bufferedWriter.write(password);
+                    bufferedWriter.write(encryptedCurrentPassword.getCipherText());
+                    bufferedWriter.newLine();
+                    bufferedWriter.write(encryptedCurrentPassword.getInitializationVector());
+                    bufferedWriter.newLine();
+                    bufferedWriter.write(encryptedCurrentPassword.getSecretKey());
                     bufferedWriter.close();
                 } catch (IOException e) {
                     System.err.println("Error saving password to file.");
@@ -345,7 +407,11 @@ public class PasswordVault {
         }
     }
 
-    private void findPassword() {
+    private void findPassword()
+        throws NoSuchPaddingException, UnsupportedEncodingException, InvalidKeyException,
+        NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException,
+        InvalidAlgorithmParameterException
+    {
         System.out.println("Find Password");
         System.out.println("====================");
 
@@ -360,9 +426,9 @@ public class PasswordVault {
                 if (listOfPasswords.containsKey(id)) {
                     Password foundPassword = listOfPasswords.get(id);
 
-                    System.out.println("id = " + foundPassword.getId());
-                    System.out.println("user = " + foundPassword.getUser());
-                    System.out.println("password = " + foundPassword.getPassword());
+                System.out.println("id = " + foundPassword.getId());
+                System.out.println("user = " + foundPassword.getUser());
+                System.out.println("password = " + foundPassword.getDecryptedPassword());
 
                     complete = true;
                 } else {
@@ -377,7 +443,10 @@ public class PasswordVault {
 
     }
 
-    private void exportPassword() {
+    private void exportPassword()
+            throws NoSuchPaddingException, IllegalBlockSizeException,
+            BadPaddingException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException, InvalidAlgorithmParameterException {
+
         System.out.println("Export Password");
         System.out.println("====================");
 
@@ -400,29 +469,41 @@ public class PasswordVault {
 
                         Password sharedPassword = listOfPasswords.get(id);
 
-                        bufferedWriter.write("id=" + sharedPassword.getId());
-                        bufferedWriter.newLine();
-                        bufferedWriter.write("user=" + sharedPassword.getUser());
-                        bufferedWriter.newLine();
-                        bufferedWriter.write("password=" + sharedPassword.getPassword());
-                        bufferedWriter.close();
-                    } catch (IOException e) {
-                        System.err.println("Error creating shared password file.");
-                        e.printStackTrace();
-                    }
+                    EncryptedText encryptedSharedPassword = Encrypt.encryptText(sharedPassword.getPassword());
 
-                    complete = true;
-                } else {
-                    System.err.println("Error id not found.");
+                    bufferedWriter.write("id=" + sharedPassword.getId());
+                    bufferedWriter.newLine();
+                    bufferedWriter.write("user=" + sharedPassword.getUser());
+                    bufferedWriter.newLine();
+                    bufferedWriter.write("password=" + encryptedSharedPassword.getCipherText());
+                    bufferedWriter.newLine();
+                    bufferedWriter.write("iv=" + encryptedSharedPassword.getInitializationVector());
+                    bufferedWriter.newLine();
+                    bufferedWriter.write("secretKey=" + encryptedSharedPassword.getSecretKey());
+                    bufferedWriter.newLine();
+//                    String plainText = Decrypt.decryptText(encryptedSharedPassword.getCipherText(),
+//                        encryptedSharedPassword.getInitializationVector(), encryptedSharedPassword.getSecretKey());
+//                    bufferedWriter.write("plainText=" + plainText);
+                    bufferedWriter.close();
+                } catch (IOException e) {
+                    System.err.println("Error creating shared password file.");
+                    e.printStackTrace();
                 }
+                complete = true;
+            } else {
+                System.err.println("Error id not found.");
             }
-        } else {
+        } } else {
             System.out.println("The password you entered was incorrect");
             mainMenu();
         }
     }
 
-    private void changeMasterPassword() {
+    private void changeMasterPassword()
+        throws NoSuchPaddingException, InvalidAlgorithmParameterException,
+        UnsupportedEncodingException, IllegalBlockSizeException, BadPaddingException,
+        NoSuchAlgorithmException, InvalidKeyException
+    {
         System.out.println("Change Master Password");
         System.out.println("====================");
 
