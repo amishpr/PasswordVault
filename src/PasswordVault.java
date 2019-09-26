@@ -198,15 +198,14 @@ public class PasswordVault {
     private boolean authUser() {
         System.out.println("Please type the current master password:");
 
-
-        while (attemptLimit > 0) {
+        int currentAttempts = attemptLimit;
+        while (currentAttempts > 0) {
             String attempt = input.nextLine();
             if (attempt.equals(masterPassword)) {
                 return true;
             } else {
-                attemptLimit--;
-                System.out.println("Unfortunately that password is incorrect, you have " + attemptLimit + " attempt" + ((attemptLimit == 1) ? "" : "s") + " left");
-
+                currentAttempts--;
+                System.out.println("Unfortunately that password is incorrect, you have " + currentAttempts + " attempt" + ((currentAttempts == 1) ? "" : "s") + " left");
             }
         }
 
