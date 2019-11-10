@@ -124,7 +124,7 @@ public class PasswordVault {
           }
           reader.close();
         } catch (IOException e) {
-          System.err.println("Error loading data file.");
+            System.err.println("Error #00008"); // Error loading data file.
           e.printStackTrace();
         }
     }
@@ -157,7 +157,7 @@ public class PasswordVault {
             }
             reader.close();
         } catch (IOException e) {
-            System.err.println("Error reading file contents.");
+            System.err.println("Error #00009"); // Error reading file contents.
             e.printStackTrace();
         }
 
@@ -183,7 +183,7 @@ public class PasswordVault {
           bufferedWriter.close();
 
         } catch (IOException e) {
-            System.err.println("Error saving new master password.");
+            System.err.println("Error #00010"); // Error saving new master password.
             e.printStackTrace();
         }
     }
@@ -412,7 +412,7 @@ public class PasswordVault {
                     java.util.Arrays.fill(passwd, ' '); // Reset Array to Blank
                     complete = true;
                 } else {
-                    System.err.println("Error id already exists!");
+                    System.err.println("Error #00011"); // id already exists
                 }
             }
         } else {
@@ -456,7 +456,7 @@ public class PasswordVault {
 
                     complete = true;
                 } else {
-                    System.err.println("Error id not found.");
+                    System.err.println("Error #00012"); // id not found.
                 }
             }
         } else {
@@ -515,7 +515,7 @@ public class PasswordVault {
                 }
                 complete = true;
             } else {
-                System.err.println("Error id not found.");
+                System.err.println("Error #00012"); // id not found.
             }
         } } else {
             System.out.println("The password you entered was incorrect");
