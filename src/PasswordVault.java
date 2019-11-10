@@ -196,16 +196,23 @@ public class PasswordVault {
     }
 
     private boolean authUser() {
-        System.out.println("Please type the current master password:");
+        System.out.println("Please type the current master password");
 
         int currentAttempts = attemptLimit;
         while (currentAttempts > 0) {
-            String attempt = input.nextLine();
-            if (attempt.equals(masterPassword)) {
-                return true;
-            } else {
-                currentAttempts--;
-                System.out.println("Unfortunately that password is incorrect, you have " + currentAttempts + " attempt" + ((currentAttempts == 1) ? "" : "s") + " left");
+            Console cons;
+            char[] passwd;
+            if ((cons = System.console()) != null &&
+                    (passwd = cons.readPassword("[%s]", "Password:")) != null) {
+
+                if (Arrays.equals(passwd, masterPassword.toCharArray())) {
+                    java.util.Arrays.fill(passwd, ' '); // Reset Array to Blank
+                    return true;
+                } else {
+                    java.util.Arrays.fill(passwd, ' '); // Reset Array to Blank
+                    currentAttempts--;
+                    System.out.println("Unfortunately that password is incorrect, you have " + currentAttempts + " attempt" + ((currentAttempts == 1) ? "" : "s") + " left");
+                }
             }
         }
 
@@ -336,66 +343,72 @@ public class PasswordVault {
     }
 
     private void addPassword()
-        throws NoSuchPaddingException, UnsupportedEncodingException, NoSuchAlgorithmException,
-        IllegalBlockSizeException, BadPaddingException, InvalidKeyException
-    {
+            throws NoSuchPaddingException, UnsupportedEncodingException, NoSuchAlgorithmException,
+            IllegalBlockSizeException, BadPaddingException, InvalidKeyException, InvalidAlgorithmParameterException {
         System.out.println("Add Password");
         System.out.println("====================");
-        boolean complete = false;
 
-        while(!complete) {
-            String id, user, password;
+        if (authUser()) {
+            boolean complete = false;
 
-            System.out.print("Enter id: ");
-            id = input.nextLine();
+            while(!complete) {
+                String id, user, password;
 
-            if (!listOfPasswords.containsKey(id)) {
-                System.out.print("Enter user: ");
-                user = input.nextLine();
+                System.out.print("Enter id: ");
+                id = input.nextLine();
 
-                System.out.println("Would you like to generate a password? [Y/n]: ");
-                String response = input.nextLine().toUpperCase();
+                if (!listOfPasswords.containsKey(id)) {
+                    System.out.print("Enter user: ");
+                    user = input.nextLine();
 
-                if (response.equals("Y") || response.equals("YES")) {
-                    password = PasswordGenerator.generatePassword();
+                    System.out.println("Would you like to generate a password? [Y/n]: ");
+                    String response = input.nextLine().toUpperCase();
+
+                    if (response.equals("Y") || response.equals("YES")) {
+                        password = PasswordGenerator.generatePassword();
+                    } else {
+                        System.out.println("Enter password: ");
+                        password = input.nextLine();
+                    }
+
+                    EncryptedText encryptedCurrentPassword = Encrypt.encryptText(password);
+
+                    Password currentPassword = new Password(id, user,
+                            encryptedCurrentPassword.getCipherText(),
+                            encryptedCurrentPassword.getInitializationVector(),
+                            encryptedCurrentPassword.getSecretKey());
+
+                    listOfPasswords.put(id, currentPassword);
+
+                    try {
+                        FileWriter writer = new FileWriter( "data.txt", true);
+                        BufferedWriter bufferedWriter = new BufferedWriter(writer);
+
+                        bufferedWriter.write(id);
+                        bufferedWriter.newLine();
+                        bufferedWriter.write(user);
+                        bufferedWriter.newLine();
+                        bufferedWriter.write(encryptedCurrentPassword.getCipherText());
+                        bufferedWriter.newLine();
+                        bufferedWriter.write(encryptedCurrentPassword.getInitializationVector());
+                        bufferedWriter.newLine();
+                        bufferedWriter.write(encryptedCurrentPassword.getSecretKey());
+                        bufferedWriter.close();
+                    } catch (IOException e) {
+                        System.err.println("Error saving password to file.");
+                        e.printStackTrace();
+                    }
+
+                    complete = true;
                 } else {
-                    System.out.println("Enter password: ");
-                    password = input.nextLine();
+                    System.err.println("Error id already exists!");
                 }
-
-                EncryptedText encryptedCurrentPassword = Encrypt.encryptText(password);
-
-                Password currentPassword = new Password(id, user,
-                    encryptedCurrentPassword.getCipherText(),
-                    encryptedCurrentPassword.getInitializationVector(),
-                    encryptedCurrentPassword.getSecretKey());
-
-                listOfPasswords.put(id, currentPassword);
-
-                try {
-                    FileWriter writer = new FileWriter( "data.txt", true);
-                    BufferedWriter bufferedWriter = new BufferedWriter(writer);
-
-                    bufferedWriter.write(id);
-                    bufferedWriter.newLine();
-                    bufferedWriter.write(user);
-                    bufferedWriter.newLine();
-                    bufferedWriter.write(encryptedCurrentPassword.getCipherText());
-                    bufferedWriter.newLine();
-                    bufferedWriter.write(encryptedCurrentPassword.getInitializationVector());
-                    bufferedWriter.newLine();
-                    bufferedWriter.write(encryptedCurrentPassword.getSecretKey());
-                    bufferedWriter.close();
-                } catch (IOException e) {
-                    System.err.println("Error saving password to file.");
-                    e.printStackTrace();
-                }
-
-                complete = true;
-            } else {
-                System.err.println("Error id already exists!");
             }
+        } else {
+            System.out.println("The password you entered was incorrect");
+            mainMenu();
         }
+
     }
 
     private void listAllIds() {

@@ -5,7 +5,7 @@
  *   09/12/19
  */
 
-import java.util.Random;
+import java.security.SecureRandom;
 
 public class PasswordGenerator {
     public static String generatePassword() {
@@ -33,7 +33,7 @@ public class PasswordGenerator {
         while (password.length() < passLength) {
             String[] alphabets = {lowercaseAlphabet, uppercaseAlphabet, numbersAlphabet, symbolsAlphabet};
 
-            Random random = new Random();
+            SecureRandom random = new SecureRandom();
             int index = random.nextInt(alphabets.length);
 
             password = password + addCharToPassword(1, alphabets[index]);
@@ -54,7 +54,7 @@ public class PasswordGenerator {
 
     private static char selectRandomChar(String s){
 
-        Random random = new Random();
+        SecureRandom random = new SecureRandom();
         int index = random.nextInt(s.length());
         return s.charAt(index);
     }
