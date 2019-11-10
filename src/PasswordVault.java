@@ -202,17 +202,21 @@ public class PasswordVault {
         while (currentAttempts > 0) {
             Console cons;
             char[] passwd;
-            if ((cons = System.console()) != null &&
-                    (passwd = cons.readPassword("[%s]", "Password:")) != null) {
 
-                if (Arrays.equals(passwd, masterPassword.toCharArray())) {
-                    java.util.Arrays.fill(passwd, ' '); // Reset Array to Blank
-                    return true;
-                } else {
-                    java.util.Arrays.fill(passwd, ' '); // Reset Array to Blank
-                    currentAttempts--;
-                    System.out.println("Unfortunately that password is incorrect, you have " + currentAttempts + " attempt" + ((currentAttempts == 1) ? "" : "s") + " left");
-                }
+            if ((cons = System.console()) != null) {
+                passwd = cons.readPassword("[%s]", "Password:");
+            } else {
+                System.out.println("*WARNING* Your IDE does not support System.console(), using unsafe password read");
+                passwd = input.nextLine().toCharArray();
+            }
+
+            if (Arrays.equals(passwd, masterPassword.toCharArray())) {
+                java.util.Arrays.fill(passwd, ' '); // Reset Array to Blank
+                return true;
+            } else {
+                java.util.Arrays.fill(passwd, ' '); // Reset Array to Blank
+                currentAttempts--;
+                System.out.println("Unfortunately that password is incorrect, you have " + currentAttempts + " attempt" + ((currentAttempts == 1) ? "" : "s") + " left");
             }
         }
 
@@ -352,7 +356,8 @@ public class PasswordVault {
             boolean complete = false;
 
             while(!complete) {
-                String id, user, password;
+                String id, user;
+                char[] passwd;
 
                 System.out.print("Enter id: ");
                 id = input.nextLine();
@@ -365,13 +370,19 @@ public class PasswordVault {
                     String response = input.nextLine().toUpperCase();
 
                     if (response.equals("Y") || response.equals("YES")) {
-                        password = PasswordGenerator.generatePassword();
+                        passwd = PasswordGenerator.generatePassword().toCharArray();
                     } else {
-                        System.out.println("Enter password: ");
-                        password = input.nextLine();
+                        Console cons;
+                        if ((cons = System.console()) != null) {
+                            passwd = cons.readPassword("[%s]", "Password:");
+                        } else {
+                            System.out.println("*WARNING* Your IDE does not support System.console(), using unsafe password read");
+                            System.out.println("Password:");
+                            passwd = input.nextLine().toCharArray();
+                        }
                     }
 
-                    EncryptedText encryptedCurrentPassword = Encrypt.encryptText(password);
+                    EncryptedText encryptedCurrentPassword = Encrypt.encryptText(new String(passwd));
 
                     Password currentPassword = new Password(id, user,
                             encryptedCurrentPassword.getCipherText(),
@@ -398,7 +409,7 @@ public class PasswordVault {
                         System.err.println("Error saving password to file.");
                         e.printStackTrace();
                     }
-
+                    java.util.Arrays.fill(passwd, ' '); // Reset Array to Blank
                     complete = true;
                 } else {
                     System.err.println("Error id already exists!");
