@@ -11,6 +11,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -133,6 +135,15 @@ public class PasswordVault {
     // Authorization
     // ========================================
 
+    public String hashMasterPassword(String masterPassword) throws NoSuchAlgorithmException {
+        String salt = "TheBestSaltEver";
+        String saltedPassword = salt + masterPassword;
+
+        return new String(Base64.getEncoder()
+                .encode(MessageDigest.getInstance("SHA-256")
+                .digest(saltedPassword.getBytes(StandardCharsets.UTF_8))));
+    }
+
     public String getMasterPassword() {
         return masterPassword;
     }
@@ -140,7 +151,7 @@ public class PasswordVault {
     private void setMasterPassword(String pass)
         throws IllegalBlockSizeException, InvalidKeyException, BadPaddingException,
         NoSuchAlgorithmException, NoSuchPaddingException {
-        masterPassword = pass;
+        masterPassword = hashMasterPassword(pass);
 
         ArrayList<String> oldFileContents = new ArrayList<>();
 
@@ -165,15 +176,7 @@ public class PasswordVault {
           FileWriter writer = new FileWriter("data.txt");
           BufferedWriter bufferedWriter = new BufferedWriter(writer);
 
-          EncryptedText encryptedMasterPassword = Encrypt.encryptText(masterPassword);
-
-          bufferedWriter.write(encryptedMasterPassword.getCipherText());
-          bufferedWriter.newLine();
-
-          bufferedWriter.write(encryptedMasterPassword.getInitializationVector());
-          bufferedWriter.newLine();
-
-          bufferedWriter.write(encryptedMasterPassword.getSecretKey());
+          bufferedWriter.write(hashMasterPassword(pass));
           bufferedWriter.newLine();
 
           for (String line : oldFileContents) {
@@ -195,13 +198,13 @@ public class PasswordVault {
         setMasterPassword(input.nextLine());
     }
 
-    private boolean authUser() {
+    private boolean authUser() throws NoSuchAlgorithmException {
         System.out.println("Please type the current master password:");
-
 
         while (attemptLimit > 0) {
             String attempt = input.nextLine();
-            if (attempt.equals(masterPassword)) {
+            String hashedAttempt = hashMasterPassword(attempt);
+            if (hashedAttempt.equals(masterPassword)) {
                 return true;
             } else {
                 attemptLimit--;
@@ -223,12 +226,14 @@ public class PasswordVault {
             BufferedReader bufferedReader = new BufferedReader(reader);
 
             String masterPwd = bufferedReader.readLine();
-            String iv = bufferedReader.readLine();
-            String secretKey = bufferedReader.readLine();
+//            String iv = bufferedReader.readLine();
+//            String secretKey = bufferedReader.readLine();
 
-            String decryptedPwd = Decrypt.decryptText(masterPwd, iv, secretKey);
+//            String decryptedPwd = Decrypt.decryptText(masterPwd, iv, secretKey);
 
-            setMasterPassword(decryptedPwd);
+//            setMasterPassword();
+
+            masterPassword = masterPwd;
 
             reader.close();
 
