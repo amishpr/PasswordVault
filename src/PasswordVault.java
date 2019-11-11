@@ -207,6 +207,7 @@ public class PasswordVault {
                 passwd = cons.readPassword("[%s]", "Password:");
             } else {
                 System.out.println("*WARNING* Your IDE does not support System.console(), using unsafe password read");
+                System.out.println("Password:");
                 passwd = input.nextLine().toCharArray();
             }
 
@@ -277,7 +278,7 @@ public class PasswordVault {
     // Main Menu and Options
     // ========================================
 
-    public static void mainMenu()
+    public void mainMenu()
         throws NoSuchPaddingException, UnsupportedEncodingException, IllegalBlockSizeException,
         BadPaddingException, NoSuchAlgorithmException, InvalidKeyException,
         InvalidAlgorithmParameterException
@@ -543,19 +544,25 @@ public class PasswordVault {
     // Session Timeout
     // ========================================
 
-    private static void extendSession() {
+    private void extendSession() {
         Timestamp now = new Timestamp(System.currentTimeMillis());
         endSession = new Timestamp(now.getTime() + TimeUnit.MINUTES.toMillis(sessionTimeLimit));
         TimerTask task = new checkActiveSession();
         timer.schedule(task, TimeUnit.MINUTES.toMillis(sessionTimeLimit));
     }
 
-    private static class checkActiveSession extends TimerTask {
+    private class checkActiveSession extends TimerTask {
         public void run() {
             Timestamp now = new Timestamp(System.currentTimeMillis());
             if (endSession.getTime() <= now.getTime()) {
-                System.out.println("Your Session has timed out");
-                System.exit(-1);
+                for (int i=0; i<100; i++) {
+                    System.out.println(); // Definitely Clears the console
+                }
+                try {
+                    login();
+                } catch (NoSuchPaddingException | InvalidAlgorithmParameterException | NoSuchAlgorithmException | IllegalBlockSizeException | BadPaddingException | InvalidKeyException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
