@@ -13,13 +13,15 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
+    - name: Find all *.java files
+      run: cd src && find -name "*.java" > java_files.txt
+    - name: Compile all Java files
+      run: javac @java_files.txt
     - name: Run Project
-      run: cd src && java -cp java Solution
-#     - name: Compile Java
-#       run: javac *.java
-#     - name: Make manifest
-#       run: echo "Main-Class:Solution" > manifest.txt
-#     - name: Make jar file
-#       run: jar cvfm PasswordVault.jar manifest.txt *.class
-      
-      
+      run: java -cp java Solution
+    - name: Make manifest
+      run: echo "Main-Class:Solution" > manifest.txt
+    - name: Find all *.class files
+      run: find -name "*.class" > class_files.txt
+    - name: Make jar file
+      run: jar cvfm PasswordVault.jar manifest.txt @class_files.txt
