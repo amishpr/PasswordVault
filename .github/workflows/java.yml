@@ -16,4 +16,4 @@ jobs:
     - name: Find all *.java files, compile all Java files, and run project
       run: cd src && find -name "*.java" > java_files.txt && javac @java_files.txt && ls && java Solution && exit
     - name: Make manifest, find all *.class files, and make jar file
-      run: ls && echo "Main-Class:Solution" > manifest.txt && find -name "*.class" > class_files.txt && jar cvfm PasswordVault.jar manifest.txt @class_files.txt
+      run: ls && echo "Main-Class:Solution" > manifest.txt && find -name "*.class" > class_files.txt && jar cvfm PasswordVault.jar manifest.txt @class_files.txt && ls
