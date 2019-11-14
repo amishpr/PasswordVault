@@ -13,10 +13,8 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
-    - name: ls
-      run: ls
     - name: Run Project
-      run: java -cp java ./src/Solution
+      run: cd src && java -cp java Solution
 #     - name: Compile Java
 #       run: javac *.java
 #     - name: Make manifest
