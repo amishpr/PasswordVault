@@ -124,7 +124,7 @@ public class PasswordVault {
           }
           reader.close();
         } catch (IOException e) {
-          System.err.println("Error loading data file.");
+            System.err.println("Error #00008"); // Error loading data file.
           e.printStackTrace();
         }
     }
@@ -157,7 +157,7 @@ public class PasswordVault {
             }
             reader.close();
         } catch (IOException e) {
-            System.err.println("Error reading file contents.");
+            System.err.println("Error #00009"); // Error reading file contents.
             e.printStackTrace();
         }
 
@@ -183,7 +183,7 @@ public class PasswordVault {
           bufferedWriter.close();
 
         } catch (IOException e) {
-            System.err.println("Error saving new master password.");
+            System.err.println("Error #00010"); // Error saving new master password.
             e.printStackTrace();
         }
     }
@@ -196,14 +196,26 @@ public class PasswordVault {
     }
 
     private boolean authUser() {
-        System.out.println("Please type the current master password:");
+        System.out.println("Please type the current master password");
 
         int currentAttempts = attemptLimit;
         while (currentAttempts > 0) {
-            String attempt = input.nextLine();
-            if (attempt.equals(masterPassword)) {
+            Console cons;
+            char[] passwd;
+
+            if ((cons = System.console()) != null) {
+                passwd = cons.readPassword("[%s]", "Password:");
+            } else {
+                System.out.println("*WARNING* Your IDE does not support System.console(), using unsafe password read");
+                System.out.println("Password:");
+                passwd = input.nextLine().toCharArray();
+            }
+
+            if (Arrays.equals(passwd, masterPassword.toCharArray())) {
+                java.util.Arrays.fill(passwd, ' '); // Reset Array to Blank
                 return true;
             } else {
+                java.util.Arrays.fill(passwd, ' '); // Reset Array to Blank
                 currentAttempts--;
                 System.out.println("Unfortunately that password is incorrect, you have " + currentAttempts + " attempt" + ((currentAttempts == 1) ? "" : "s") + " left");
             }
@@ -266,7 +278,7 @@ public class PasswordVault {
     // Main Menu and Options
     // ========================================
 
-    public static void mainMenu()
+    public void mainMenu()
         throws NoSuchPaddingException, UnsupportedEncodingException, IllegalBlockSizeException,
         BadPaddingException, NoSuchAlgorithmException, InvalidKeyException,
         InvalidAlgorithmParameterException
@@ -336,66 +348,79 @@ public class PasswordVault {
     }
 
     private void addPassword()
-        throws NoSuchPaddingException, UnsupportedEncodingException, NoSuchAlgorithmException,
-        IllegalBlockSizeException, BadPaddingException, InvalidKeyException
-    {
+            throws NoSuchPaddingException, UnsupportedEncodingException, NoSuchAlgorithmException,
+            IllegalBlockSizeException, BadPaddingException, InvalidKeyException, InvalidAlgorithmParameterException {
         System.out.println("Add Password");
         System.out.println("====================");
-        boolean complete = false;
 
-        while(!complete) {
-            String id, user, password;
+        if (authUser()) {
+            boolean complete = false;
 
-            System.out.print("Enter id: ");
-            id = input.nextLine();
+            while(!complete) {
+                String id, user;
+                char[] passwd;
 
-            if (!listOfPasswords.containsKey(id)) {
-                System.out.print("Enter user: ");
-                user = input.nextLine();
+                System.out.print("Enter id: ");
+                id = input.nextLine();
 
-                System.out.println("Would you like to generate a password? [Y/n]: ");
-                String response = input.nextLine().toUpperCase();
+                if (!listOfPasswords.containsKey(id)) {
+                    System.out.print("Enter user: ");
+                    user = input.nextLine();
 
-                if (response.equals("Y") || response.equals("YES")) {
-                    password = PasswordGenerator.generatePassword();
+                    System.out.println("Would you like to generate a password? [Y/n]: ");
+                    String response = input.nextLine().toUpperCase();
+
+                    if (response.equals("Y") || response.equals("YES")) {
+                        passwd = PasswordGenerator.generatePassword().toCharArray();
+                    } else {
+                        Console cons;
+                        if ((cons = System.console()) != null) {
+                            passwd = cons.readPassword("[%s]", "Password:");
+                        } else {
+                            System.out.println("*WARNING* Your IDE does not support System.console(), using unsafe password read");
+                            System.out.println("Password:");
+                            passwd = input.nextLine().toCharArray();
+                        }
+                    }
+
+                    EncryptedText encryptedCurrentPassword = Encrypt.encryptText(new String(passwd));
+
+                    Password currentPassword = new Password(id, user,
+                            encryptedCurrentPassword.getCipherText(),
+                            encryptedCurrentPassword.getInitializationVector(),
+                            encryptedCurrentPassword.getSecretKey());
+
+                    listOfPasswords.put(id, currentPassword);
+
+                    try {
+                        FileWriter writer = new FileWriter( "data.txt", true);
+                        BufferedWriter bufferedWriter = new BufferedWriter(writer);
+
+                        bufferedWriter.write(id);
+                        bufferedWriter.newLine();
+                        bufferedWriter.write(user);
+                        bufferedWriter.newLine();
+                        bufferedWriter.write(encryptedCurrentPassword.getCipherText());
+                        bufferedWriter.newLine();
+                        bufferedWriter.write(encryptedCurrentPassword.getInitializationVector());
+                        bufferedWriter.newLine();
+                        bufferedWriter.write(encryptedCurrentPassword.getSecretKey());
+                        bufferedWriter.close();
+                    } catch (IOException e) {
+                        System.err.println("Error saving password to file.");
+                        e.printStackTrace();
+                    }
+                    java.util.Arrays.fill(passwd, ' '); // Reset Array to Blank
+                    complete = true;
                 } else {
-                    System.out.println("Enter password: ");
-                    password = input.nextLine();
+                    System.err.println("Error #00011"); // id already exists
                 }
-
-                EncryptedText encryptedCurrentPassword = Encrypt.encryptText(password);
-
-                Password currentPassword = new Password(id, user,
-                    encryptedCurrentPassword.getCipherText(),
-                    encryptedCurrentPassword.getInitializationVector(),
-                    encryptedCurrentPassword.getSecretKey());
-
-                listOfPasswords.put(id, currentPassword);
-
-                try {
-                    FileWriter writer = new FileWriter( "data.txt", true);
-                    BufferedWriter bufferedWriter = new BufferedWriter(writer);
-
-                    bufferedWriter.write(id);
-                    bufferedWriter.newLine();
-                    bufferedWriter.write(user);
-                    bufferedWriter.newLine();
-                    bufferedWriter.write(encryptedCurrentPassword.getCipherText());
-                    bufferedWriter.newLine();
-                    bufferedWriter.write(encryptedCurrentPassword.getInitializationVector());
-                    bufferedWriter.newLine();
-                    bufferedWriter.write(encryptedCurrentPassword.getSecretKey());
-                    bufferedWriter.close();
-                } catch (IOException e) {
-                    System.err.println("Error saving password to file.");
-                    e.printStackTrace();
-                }
-
-                complete = true;
-            } else {
-                System.err.println("Error id already exists!");
             }
+        } else {
+            System.out.println("The password you entered was incorrect");
+            mainMenu();
         }
+
     }
 
     private void listAllIds() {
@@ -432,7 +457,7 @@ public class PasswordVault {
 
                     complete = true;
                 } else {
-                    System.err.println("Error id not found.");
+                    System.err.println("Error #00012"); // id not found.
                 }
             }
         } else {
@@ -491,7 +516,7 @@ public class PasswordVault {
                 }
                 complete = true;
             } else {
-                System.err.println("Error id not found.");
+                System.err.println("Error #00012"); // id not found.
             }
         } } else {
             System.out.println("The password you entered was incorrect");
@@ -519,19 +544,25 @@ public class PasswordVault {
     // Session Timeout
     // ========================================
 
-    private static void extendSession() {
+    private void extendSession() {
         Timestamp now = new Timestamp(System.currentTimeMillis());
         endSession = new Timestamp(now.getTime() + TimeUnit.MINUTES.toMillis(sessionTimeLimit));
         TimerTask task = new checkActiveSession();
         timer.schedule(task, TimeUnit.MINUTES.toMillis(sessionTimeLimit));
     }
 
-    private static class checkActiveSession extends TimerTask {
+    private class checkActiveSession extends TimerTask {
         public void run() {
             Timestamp now = new Timestamp(System.currentTimeMillis());
             if (endSession.getTime() <= now.getTime()) {
-                System.out.println("Your Session has timed out");
-                System.exit(-1);
+                for (int i=0; i<100; i++) {
+                    System.out.println(); // Definitely Clears the console
+                }
+                try {
+                    login();
+                } catch (NoSuchPaddingException | InvalidAlgorithmParameterException | NoSuchAlgorithmException | IllegalBlockSizeException | BadPaddingException | InvalidKeyException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
