@@ -61,50 +61,6 @@ public class PasswordVault {
 
     }
 
-    public class Password {
-        String id;
-        String user;
-        String password;
-        String iv;
-        String secretKey;
-
-        public Password(String id, String user, String password, String iv, String secretKey) {
-            this.id = id;
-            this.user = user;
-            this.password = password;
-            this.iv = iv;
-            this.secretKey = secretKey;
-        }
-
-        public String getId() {
-            return id;
-        }
-
-        public String getUser() {
-            return user;
-        }
-
-        public String getPassword() {
-            return password;
-        }
-
-        public String getIv() {
-            return iv;
-        }
-
-        public String getSecretKey() {
-            return secretKey;
-        }
-
-        public String getDecryptedPassword()
-            throws NoSuchPaddingException, BadPaddingException, InvalidAlgorithmParameterException,
-            NoSuchAlgorithmException, IllegalBlockSizeException,
-            UnsupportedEncodingException, InvalidKeyException
-        {
-            return Decrypt.decryptText(password, iv, secretKey);
-        }
-    }
-
     private void readAllStoredPasswords() {
         try {
           FileReader reader = new FileReader("data.txt");
