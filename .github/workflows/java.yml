@@ -14,7 +14,7 @@ jobs:
       with:
         java-version: 1.8
     - name: Run Project
-      run: java -cp java Solution
+      run: java -cp java ./src/Solution
 #     - name: Compile Java
 #       run: javac *.java
 #     - name: Make manifest
