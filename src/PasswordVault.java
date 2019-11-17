@@ -448,7 +448,7 @@ public class PasswordVault {
                 System.out.println("Enter id of password: ");
                 id = input.nextLine();
 
-                if (listOfPasswords.containsKey(id) && checkCert.checkFriendCert()) {
+                if (listOfPasswords.containsKey(id) && CheckCert.checkFriendCert()) {
 
                     System.out.println("Enter file name: ");
                     fileName = input.nextLine();

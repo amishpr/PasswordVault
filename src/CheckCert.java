@@ -10,15 +10,14 @@ import java.security.cert.CertificateFactory;
 import java.util.Collection;
 import java.util.Scanner;
 
-public class checkCert {
+public class CheckCert {
     private static Scanner input = new Scanner(System.in);
 
-    static boolean checkFriendCert() {
+    public static boolean checkFriendCert() {
         System.out.println("Please place your .cert file in /certFolder");
         System.out.println("Then enter cert filepath: ");
         String certPath = input.nextLine();
-        System.out.println("Then enter second cert filepath: ");
-        String issuerCertPath = input.nextLine();
+        String issuerCertPath = "certFolder/root_X0F.crt";
 
         try {
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
@@ -30,7 +29,7 @@ public class checkCert {
 
             cert.verify(issuerCert.getPublicKey());
 
-            System.out.println(cert);
+//            System.out.println(cert);
             return true;
 
         } catch (CertificateException | FileNotFoundException | NoSuchAlgorithmException | InvalidKeyException | SignatureException | NoSuchProviderException e) {
