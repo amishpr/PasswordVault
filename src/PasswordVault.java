@@ -36,8 +36,8 @@ public class PasswordVault {
     private static String lineBreak =
             "--------------------------------------------------";
 
-    private static int attemptLimit = 5;
-    private static int sessionTimeLimit = 1; // in minutes
+    private int attemptLimit = 5;
+    private int sessionTimeLimit = 1; // in minutes
 
     // ========================================
     // Globals
@@ -51,10 +51,17 @@ public class PasswordVault {
 
     private static HashMap<String, Password> listOfPasswords = new HashMap<>();
 
-    public PasswordVault(String masterPassword)
-        throws InvalidKeyException, BadPaddingException, NoSuchAlgorithmException,
-        IllegalBlockSizeException, NoSuchPaddingException {
-        setMasterPassword(masterPassword.toCharArray());
+    public int getAttemptLimit() {
+        return attemptLimit;
+    }
+
+    public int getSessionTimeLimit() {
+        return sessionTimeLimit;
+    }
+
+    public PasswordVault(int attemptLimit, int sessionTimeLimit) {
+        this.attemptLimit = attemptLimit;
+        this.sessionTimeLimit = sessionTimeLimit;
     }
 
     public PasswordVault() {
@@ -148,7 +155,7 @@ public class PasswordVault {
     private boolean authUser() throws NoSuchAlgorithmException {
         System.out.println("Please type the current master password");
 
-        int currentAttempts = attemptLimit;
+        int currentAttempts = getAttemptLimit();
         while (currentAttempts > 0) {
             Console cons;
             char[] attempt;
@@ -200,7 +207,7 @@ public class PasswordVault {
 
             if (authUser()) {
 //                readAllStoredPasswords();
-                mainMenu();
+                new MainMenu();
             } else {
                 System.out.println("The password you entered was incorrect");
                 login();
@@ -222,7 +229,7 @@ public class PasswordVault {
             FileWriter writer = new FileWriter("data.txt", true);
             System.out.println("Looks like this is your first time");
             createMasterPassword();
-            mainMenu();
+            new MainMenu();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -233,76 +240,7 @@ public class PasswordVault {
     // Main Menu and Options
     // ========================================
 
-    public void mainMenu()
-        throws NoSuchPaddingException, UnsupportedEncodingException, IllegalBlockSizeException,
-        BadPaddingException, NoSuchAlgorithmException, InvalidKeyException,
-        InvalidAlgorithmParameterException
-    {
-        extendSession();
-
-        // Display menu
-        System.out.println(lineBreak);
-        System.out.println("Main Menu");
-        System.out.println();
-        System.out.println("Choose an option.");
-        System.out.println("1) Add Password");
-        System.out.println("2) List Ids");
-        System.out.println("3) Find Password");
-        System.out.println("4) Export Password");
-        System.out.println("5) Change Master Password");
-        System.out.println("6) Exit");
-        System.out.println();
-
-        PasswordVault vault = new PasswordVault();
-
-        boolean next = false;
-
-        while (!next) {
-            try {
-
-                System.out.print("Your choice: ");
-                Scanner in = new Scanner(System.in);
-                int choice = in.nextInt();
-                System.out.println();
-
-                switch (choice) {
-                    case 1:
-                        vault.addPassword();
-                        next = true;
-                        break;
-                    case 2:
-                        vault.listAllIds();
-                        next = true;
-                        break;
-                    case 3:
-                        vault.findPassword();
-                        next = true;
-                        break;
-                    case 4:
-                        vault.exportPassword();
-                        next = true;
-                        break;
-                    case 5:
-                        vault.changeMasterPassword();
-                        next = true;
-                        break;
-                    case 6:
-                        System.exit(0);
-                        break;
-                    default:
-                        System.out.println(choice + " is not a valid choice! Please enter a number from 1 to 6.");
-                        break;
-                }
-            } catch (InputMismatchException e) {
-                System.err.println("Not a valid input. Error :" + e.getMessage());
-                continue;
-            }
-        }
-
-        mainMenu();
-    }
-
-    private void addPassword()
+    void addPassword()
             throws NoSuchPaddingException, UnsupportedEncodingException, NoSuchAlgorithmException,
             IllegalBlockSizeException, BadPaddingException, InvalidKeyException, InvalidAlgorithmParameterException {
         System.out.println("Add Password");
@@ -344,12 +282,12 @@ public class PasswordVault {
             }
         } else {
             System.out.println("The password you entered was incorrect");
-            mainMenu();
+            new MainMenu();
         }
 
     }
 
-    private void listAllIds() {
+    void listAllIds() {
         System.out.println("List of ids");
         System.out.println("====================");
         System.out.println(lineBreak);
@@ -358,7 +296,7 @@ public class PasswordVault {
         }
     }
 
-    private void findPassword()
+    void findPassword()
         throws NoSuchPaddingException, UnsupportedEncodingException, InvalidKeyException,
         NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException,
         InvalidAlgorithmParameterException
@@ -388,13 +326,13 @@ public class PasswordVault {
             }
         } else {
             System.out.println("The password you entered was incorrect");
-            mainMenu();
+            new MainMenu();
         }
 
 
     }
 
-    private void exportPassword()
+    void exportPassword()
             throws NoSuchPaddingException, IllegalBlockSizeException,
             BadPaddingException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException, InvalidAlgorithmParameterException {
 
@@ -446,11 +384,11 @@ public class PasswordVault {
             }
         } } else {
             System.out.println("The password you entered was incorrect");
-            mainMenu();
+            new MainMenu();
         }
     }
 
-    private void changeMasterPassword()
+    void changeMasterPassword()
         throws NoSuchPaddingException, InvalidAlgorithmParameterException,
         UnsupportedEncodingException, IllegalBlockSizeException, BadPaddingException,
         NoSuchAlgorithmException, InvalidKeyException
@@ -462,34 +400,7 @@ public class PasswordVault {
             createMasterPassword();
         } else {
             System.out.println("The password you entered was incorrect");
-            mainMenu();
-        }
-    }
-
-    // ========================================
-    // Session Timeout
-    // ========================================
-
-    private void extendSession() {
-        Timestamp now = new Timestamp(System.currentTimeMillis());
-        endSession = new Timestamp(now.getTime() + TimeUnit.MINUTES.toMillis(sessionTimeLimit));
-        TimerTask task = new checkActiveSession();
-        timer.schedule(task, TimeUnit.MINUTES.toMillis(sessionTimeLimit));
-    }
-
-    private class checkActiveSession extends TimerTask {
-        public void run() {
-            Timestamp now = new Timestamp(System.currentTimeMillis());
-            if (endSession.getTime() <= now.getTime()) {
-                for (int i=0; i<100; i++) {
-                    System.out.println(); // Definitely Clears the console
-                }
-                try {
-                    login();
-                } catch (NoSuchPaddingException | InvalidAlgorithmParameterException | NoSuchAlgorithmException | IllegalBlockSizeException | BadPaddingException | InvalidKeyException e) {
-                    e.printStackTrace();
-                }
-            }
+            new MainMenu();
         }
     }
 }

@@ -19,9 +19,9 @@ public class Solution {
         throws NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException,
         IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
 
-        PasswordVault passwordVault = new PasswordVault();
+        PasswordVault passwordVault = new PasswordVault(5,1);
 
-        System.out.println("Welcome to password master 5000 mark 24!");
+        System.out.println("Welcome to password master 5000 mark 42!");
 
         try {
             FileReader reader = new FileReader("master.txt");
