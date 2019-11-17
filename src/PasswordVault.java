@@ -54,7 +54,7 @@ public class PasswordVault {
     public PasswordVault(String masterPassword)
         throws InvalidKeyException, BadPaddingException, NoSuchAlgorithmException,
         IllegalBlockSizeException, NoSuchPaddingException {
-        setMasterPassword(masterPassword);
+        setMasterPassword(masterPassword.toCharArray());
     }
 
     public PasswordVault() {
@@ -91,23 +91,14 @@ public class PasswordVault {
     // Authorization
     // ========================================
 
-    public String hashMasterPassword(String masterPassword) throws NoSuchAlgorithmException {
-        String salt = "TheBestSaltEver";
-        String saltedPassword = salt + masterPassword;
-
-        return new String(Base64.getEncoder()
-                .encode(MessageDigest.getInstance("SHA-256")
-                .digest(saltedPassword.getBytes(StandardCharsets.UTF_8))));
-    }
-
     public String getMasterPassword() {
         return masterPassword;
     }
 
-    private void setMasterPassword(String pass)
+    private void setMasterPassword(char[] pass)
         throws IllegalBlockSizeException, InvalidKeyException, BadPaddingException,
         NoSuchAlgorithmException, NoSuchPaddingException {
-        masterPassword = hashMasterPassword(pass);
+        masterPassword = Master.hashMasterPassword(pass).toString();
 
         ArrayList<String> oldFileContents = new ArrayList<>();
 
@@ -132,7 +123,7 @@ public class PasswordVault {
           FileWriter writer = new FileWriter("data.txt");
           BufferedWriter bufferedWriter = new BufferedWriter(writer);
 
-          bufferedWriter.write(hashMasterPassword(pass));
+          bufferedWriter.write(Master.hashMasterPassword(pass));
           bufferedWriter.newLine();
 
           for (String line : oldFileContents) {
@@ -151,7 +142,7 @@ public class PasswordVault {
         throws InvalidKeyException, BadPaddingException, NoSuchAlgorithmException,
         IllegalBlockSizeException, NoSuchPaddingException {
         System.out.println("Please set the master password");
-        setMasterPassword(input.nextLine());
+        setMasterPassword(input.nextLine().toCharArray());
     }
 
     private boolean authUser() throws NoSuchAlgorithmException {
@@ -160,25 +151,30 @@ public class PasswordVault {
         int currentAttempts = attemptLimit;
         while (currentAttempts > 0) {
             Console cons;
-            char[] passwd;
+            char[] attempt;
 
             if ((cons = System.console()) != null) {
-                passwd = cons.readPassword("[%s]", "Password:");
+                attempt = cons.readPassword("[%s]", "Password:");
             } else {
                 System.out.println("*WARNING* Your IDE does not support System.console(), using unsafe password read");
                 System.out.println("Password:");
-                passwd = input.nextLine().toCharArray();
+                attempt = input.nextLine().toCharArray();
             }
 
-          // TODO fix this for char array
-          String attempt = input.nextLine();
-          String hashedAttempt = hashMasterPassword(attempt);
+            // TODO fix this for char array
+            char[] hashedAttempt = Master.hashMasterPassword(attempt);
 
-            if (Arrays.equals(passwd, masterPassword.toCharArray())) {
-                java.util.Arrays.fill(passwd, '0'); // Reset Array to Blank
+            System.out.println("attempt: " + Arrays.toString(attempt));
+            System.out.println("hashedAttempt: " + Arrays.toString(hashedAttempt));
+            System.out.println("master: " + masterPassword);
+
+            masterPassword = hashedAttempt.toString();
+
+            if (Arrays.equals(hashedAttempt, masterPassword.toCharArray())) {
+                CharArrayUtils.clear(attempt);
                 return true;
             } else {
-                java.util.Arrays.fill(passwd, '0'); // Reset Array to Blank
+                CharArrayUtils.clear(attempt);
                 currentAttempts--;
                 System.out.println("Unfortunately that password is incorrect, you have " + currentAttempts + " attempt" + ((currentAttempts == 1) ? "" : "s") + " left");
             }
@@ -193,23 +189,17 @@ public class PasswordVault {
         throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException,
         IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
         try {
-            FileReader reader = new FileReader("data.txt");
+            FileReader reader = new FileReader("master.txt");
             BufferedReader bufferedReader = new BufferedReader(reader);
 
             String masterPwd = bufferedReader.readLine();
-//            String iv = bufferedReader.readLine();
-//            String secretKey = bufferedReader.readLine();
 
-//            String decryptedPwd = Decrypt.decryptText(masterPwd, iv, secretKey);
-
-//            setMasterPassword();
-
-            masterPassword = masterPwd;
+            System.out.println("Master: " + masterPwd);
 
             reader.close();
 
             if (authUser()) {
-                readAllStoredPasswords();
+//                readAllStoredPasswords();
                 mainMenu();
             } else {
                 System.out.println("The password you entered was incorrect");
@@ -347,35 +337,6 @@ public class PasswordVault {
                             passwd = input.nextLine().toCharArray();
                         }
                     }
-
-                    EncryptedText encryptedCurrentPassword = Encrypt.encryptText(new String(passwd));
-
-                    Password currentPassword = new Password(id, user,
-                            encryptedCurrentPassword.getCipherText(),
-                            encryptedCurrentPassword.getInitializationVector(),
-                            encryptedCurrentPassword.getSecretKey());
-
-                    listOfPasswords.put(id, currentPassword);
-
-                    try {
-                        FileWriter writer = new FileWriter( "data.txt", true);
-                        BufferedWriter bufferedWriter = new BufferedWriter(writer);
-
-                        bufferedWriter.write(id);
-                        bufferedWriter.newLine();
-                        bufferedWriter.write(user);
-                        bufferedWriter.newLine();
-                        bufferedWriter.write(encryptedCurrentPassword.getCipherText());
-                        bufferedWriter.newLine();
-                        bufferedWriter.write(encryptedCurrentPassword.getInitializationVector());
-                        bufferedWriter.newLine();
-                        bufferedWriter.write(encryptedCurrentPassword.getSecretKey());
-                        bufferedWriter.close();
-                    } catch (IOException e) {
-                        System.err.println("Error saving password to file.");
-                        e.printStackTrace();
-                    }
-                    java.util.Arrays.fill(passwd, ' '); // Reset Array to Blank
                     complete = true;
                 } else {
                     System.err.println("Error #00011"); // id already exists

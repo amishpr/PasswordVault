@@ -24,7 +24,7 @@ public class Solution {
         System.out.println("Welcome to password master 5000 mark 24!");
 
         try {
-            FileReader reader = new FileReader("data.txt");
+            FileReader reader = new FileReader("master.txt");
             reader.close();
             passwordVault.login();
         } catch (FileNotFoundException e) {
