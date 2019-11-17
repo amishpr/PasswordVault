@@ -175,10 +175,10 @@ public class PasswordVault {
           String hashedAttempt = hashMasterPassword(attempt);
 
             if (Arrays.equals(passwd, masterPassword.toCharArray())) {
-                java.util.Arrays.fill(passwd, ' '); // Reset Array to Blank
+                java.util.Arrays.fill(passwd, '0'); // Reset Array to Blank
                 return true;
             } else {
-                java.util.Arrays.fill(passwd, ' '); // Reset Array to Blank
+                java.util.Arrays.fill(passwd, '0'); // Reset Array to Blank
                 currentAttempts--;
                 System.out.println("Unfortunately that password is incorrect, you have " + currentAttempts + " attempt" + ((currentAttempts == 1) ? "" : "s") + " left");
             }
