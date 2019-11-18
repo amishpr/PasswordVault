@@ -30,7 +30,8 @@ public class Solution {
         } catch (FileNotFoundException e) {
             passwordVault.signUp();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Error #00003"); // Unknown
+//            e.printStackTrace();
         }
     }
 }
