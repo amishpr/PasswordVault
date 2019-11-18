@@ -14,7 +14,7 @@ jobs:
         with:
           java-version: 1.8
 
-      - name: Find all *.java files and compile all Java files
+      - name: Build jar file
         run: cd src && find -name "*.java" > java_files.txt && javac @java_files.txt && ls && find -name "*.class" > class_files.txt && cat class_files.txt && jar cvmf MANIFEST.MF PasswordVault.jar @class_files.txt && ls
 
       - name: Generate build number
