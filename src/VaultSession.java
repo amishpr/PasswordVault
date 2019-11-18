@@ -3,8 +3,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
-public class Session {
+public class VaultSession {
 
+    private PassVault vault;
     private int timeLimit;
     private Timestamp timeout;
 
@@ -15,7 +16,8 @@ public class Session {
     }
 
 
-    public Session(int timeLimit) {
+    public VaultSession(PassVault vault, int timeLimit) {
+        this.vault = vault;
         this.timeLimit = timeLimit;
     }
 
@@ -26,10 +28,12 @@ public class Session {
 
     public void endSession() {
         active = false;
+        vault.login();
     }
 
     public void extend(int duration) {
-        long then = TimeUnit.MINUTES.toMillis(duration);
+//        long then = TimeUnit.MINUTES.toMillis(duration);
+        long then = TimeUnit.SECONDS.toMillis(10);
         timeout = new Timestamp(System.currentTimeMillis() + then);
         new Timer().schedule(new checkSession(), then);
     }

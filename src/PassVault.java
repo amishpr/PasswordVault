@@ -1,4 +1,5 @@
 import java.sql.Timestamp;
+import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
@@ -9,13 +10,15 @@ public class PassVault {
     // ========================================
 
     private final int passAttempts;
+    private Scanner in;
 
     // ========================================
     // Constructor
     // ========================================
 
-    public PassVault(int passAttempts) {
+    public PassVault(int passAttempts, Scanner in) {
         this.passAttempts = passAttempts;
+        this.in = in;
     }
 
     public PassVault() {
@@ -27,7 +30,12 @@ public class PassVault {
     // Authorization
     // ========================================
 
-    public boolean login() { return false; }
+    public boolean login() {
+        System.out.println("Login");
+        String i = in.next();
+        System.out.println(i);
+        return false;
+    }
 
     public boolean signUp() { return false; }
 

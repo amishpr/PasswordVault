@@ -7,20 +7,16 @@ public class Menu {
             "--------------------------------------------------";
 
     private PassVault vault;
-    private Session session;
+    private Scanner in = new Scanner(System.in);
 
-    public Menu(PassVault vault, Session session) {
+    public Menu(PassVault vault) {
         this.vault = vault;
-        this.session = session;
-        System.out.println(lineBreak);
-        System.out.println("Main Menu");
-        System.out.println();
-        listOptions();
     }
 
     public void listOptions() {
         // Display options
         System.out.println(lineBreak);
+        System.out.println("Main Menu");
         System.out.println();
         System.out.println("Choose an option.");
         System.out.println("1) Add Password");
@@ -37,7 +33,6 @@ public class Menu {
             try {
 
                 System.out.print("Your choice: ");
-                Scanner in = new Scanner(System.in);
                 int choice = in.nextInt();
                 System.out.println();
 
@@ -73,7 +68,9 @@ public class Menu {
                 System.err.println("Not a valid input. Error :" + e.getMessage());
             }
         }
+    }
 
-        listOptions();
+    public void close() {
+        in.close();
     }
 }

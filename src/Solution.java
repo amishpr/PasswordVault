@@ -1,3 +1,5 @@
+import java.util.Scanner;
+
 public class Solution {
 
     public static void main(String[] args) {
@@ -7,16 +9,19 @@ public class Solution {
 
     public static void start() {
 
-        PassVault vault = new PassVault(5);
+        Scanner in = new Scanner(System.in);
+        PassVault vault = new PassVault(5, in);
 
-        if(vault.login()) {
-            Session session = new Session(1);
-            Menu menu = new Menu(vault, session);
+//        if(vault.login()) {
+        Menu menu = new Menu(vault);
+        VaultSession session = new VaultSession(vault, 1);
+        session.startSession();
 
-            while(session.isActive()) {
-                menu.listOptions();
-            }
+        while(session.isActive()) {
+            menu.listOptions();
         }
+        System.out.println("No longer active");
+//        }
 
 
 
