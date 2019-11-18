@@ -8,16 +8,24 @@ public class Session {
     private int timeLimit;
     private Timestamp timeout;
 
+    private boolean active = false;
+
+    public boolean isActive() {
+        return active;
+    }
+
+
     public Session(int timeLimit) {
         this.timeLimit = timeLimit;
     }
 
     public void startSession() {
-
+        active = true;
+        extend(timeLimit);
     }
 
     public void endSession() {
-
+        active = false;
     }
 
     public void extend(int duration) {

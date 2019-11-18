@@ -9,24 +9,18 @@ public class PassVault {
     // ========================================
 
     private final int passAttempts;
-    private final int sessionLimit;
-
-    private String sessionID;
-    private Timestamp endSessionTime;
 
     // ========================================
     // Constructor
     // ========================================
 
-    public PassVault(int passAttempts, int sessionLimit) {
+    public PassVault(int passAttempts) {
         this.passAttempts = passAttempts;
-        this.sessionLimit = sessionLimit;
     }
 
     public PassVault() {
         // Defaults
         this.passAttempts = 5;
-        this.sessionLimit = 5;
     }
 
     // ========================================
@@ -58,24 +52,4 @@ public class PassVault {
     public void sharePass() {}
 
     public void changeMasterPass() {}
-
-    // ========================================
-    // Session
-    // ========================================
-
-    private void extendSession(int duration) {
-        long then = TimeUnit.MINUTES.toMillis(duration);
-        endSessionTime = new Timestamp(System.currentTimeMillis() + then);
-        new Timer().schedule(new checkSession(), then);
-    }
-
-    private class checkSession extends TimerTask {
-        public void run() {
-            Timestamp now = new Timestamp(System.currentTimeMillis());
-            if (endSessionTime.getTime() <= now.getTime()) {
-                // End Session
-                login();
-            }
-        }
-    }
 }

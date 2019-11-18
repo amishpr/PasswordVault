@@ -1,15 +1,17 @@
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
-public class menu {
+public class Menu {
 
     private String lineBreak =
             "--------------------------------------------------";
 
     private PassVault vault;
+    private Session session;
 
-    public menu(PassVault vault) {
+    public Menu(PassVault vault, Session session) {
         this.vault = vault;
+        this.session = session;
         System.out.println(lineBreak);
         System.out.println("Main Menu");
         System.out.println();
