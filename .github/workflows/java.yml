@@ -14,14 +14,14 @@ jobs:
         with:
           java-version: 1.8
 
-      - name: Build jar file
-        run: cd src && find -name "*.java" > java_files.txt && javac @java_files.txt && ls && find -name "*.class" > class_files.txt && cat class_files.txt && jar cvmf MANIFEST.MF PasswordVault.jar @class_files.txt && ls
-
       - name: Generate build number
         id: buildnumber
         uses: einaregilsson/build-number@v1
         with:
           token: ${{secrets.github_token}}
+
+      - name: Build jar file
+        run: cd src && find -name "*.java" > java_files.txt && javac @java_files.txt && ls && find -name "*.class" > class_files.txt && cat class_files.txt && jar cvmf MANIFEST.MF PasswordVault.jar @class_files.txt && ls
 
       - name: Create Release
         id: create_release
@@ -42,5 +42,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
           asset_path: ./src/PasswordVault.jar
-          asset_name: PasswordVault.jar
+          asset_name: PasswordVault-${{ steps.buildnumber.outputs.build_number }}.jar
           asset_content_type: application/jar
