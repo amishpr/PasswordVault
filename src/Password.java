@@ -41,11 +41,11 @@ public class Password {
     return secretKey;
   }
 
-  String getDecryptedPassword()
-      throws NoSuchPaddingException, BadPaddingException, InvalidAlgorithmParameterException,
-      NoSuchAlgorithmException, IllegalBlockSizeException,
-      UnsupportedEncodingException, InvalidKeyException
-  {
-    return Decrypt.decryptText(password, iv, secretKey);
-  }
+//  String getDecryptedPassword()
+//      throws NoSuchPaddingException, BadPaddingException, InvalidAlgorithmParameterException,
+//      NoSuchAlgorithmException, IllegalBlockSizeException,
+//      UnsupportedEncodingException, InvalidKeyException
+//  {
+//    return Decrypt.decryptText(password, iv, secretKey);
+//  }
 }

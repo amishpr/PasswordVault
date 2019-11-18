@@ -1,3 +1,4 @@
+import java.io.IOException;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
@@ -26,10 +27,7 @@ public class MainMenu {
     }
 
     public void MainMenu()
-            throws NoSuchPaddingException, UnsupportedEncodingException, IllegalBlockSizeException,
-            BadPaddingException, NoSuchAlgorithmException, InvalidKeyException,
-            InvalidAlgorithmParameterException
-    {
+        throws Exception {
         extendSession();
 
         // Display menu
@@ -71,7 +69,7 @@ public class MainMenu {
                         next = true;
                         break;
                     case 4:
-                        vault.exportPassword();
+//                        vault.exportPassword();
                         next = true;
                         break;
                     case 5:
@@ -85,7 +83,7 @@ public class MainMenu {
                         System.out.println(choice + " is not a valid choice! Please enter a number from 1 to 6.");
                         break;
                 }
-            } catch (InputMismatchException e) {
+            } catch (InputMismatchException | IOException e) {
                 System.err.println("Not a valid input. Error :" + e.getMessage());
                 continue;
             }
@@ -116,7 +114,7 @@ public class MainMenu {
                 try {
                     PasswordVault vault = new PasswordVault();
                     vault.login();
-                } catch (NoSuchPaddingException | InvalidAlgorithmParameterException | NoSuchAlgorithmException | IllegalBlockSizeException | BadPaddingException | InvalidKeyException e) {
+                } catch (NoSuchAlgorithmException e) {
                     e.printStackTrace();
                 }
             }

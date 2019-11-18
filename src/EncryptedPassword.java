@@ -4,22 +4,30 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class EncryptedPassword implements Serializable {
 
-  private int id;
+  private char[] id;
   private char[] cipherText;
 
   private static String fileName = "passwords.txt";
 
-  public EncryptedPassword(int id, char[] cipherText) {
+  public static String getFileName() {
+    return fileName;
+  }
+
+  private EncryptedPassword(char[] id, char[] cipherText) {
     this.id = id;
     this.cipherText = cipherText;
   }
 
-  public int getLastId() throws IOException {
-    int lastId = 0;
+  public static List<char[]> getListOfIds() throws IOException {
+
+    List<char[]> idList = new ArrayList<>();
+
     boolean cont = true;
     EncryptedPassword obj = null;
 
@@ -33,20 +41,15 @@ public class EncryptedPassword implements Serializable {
         e.printStackTrace();
       }
       if (obj != null) {
-        System.out.println("Object has been deserialized ");
-        System.out.println("id = " + obj.id);
-        System.out.println("user = " + Arrays.toString(obj.cipherText));
-
-        obj.id = lastId;
+        idList.add(obj.id);
       } else {
         cont = false;
       }
     }
-
-    return lastId;
+    return idList;
   }
 
-  public char[] getPassword(int id) throws IOException {
+  public static char[] getCipherText(char[] id) throws IOException {
     FileInputStream file;
     ObjectInputStream in;
 
@@ -68,12 +71,13 @@ public class EncryptedPassword implements Serializable {
         System.out.println("id = " + obj.id);
         System.out.println("user = " + Arrays.toString(obj.cipherText));
 
-        if (id == obj.id) {
+        if (Arrays.equals(id, obj.id)) {
           cipherText = obj.cipherText;
 
           // Clear obj
-          obj.id = 0;
+          CharArrayUtils.clear(obj.id);
           CharArrayUtils.clear(obj.cipherText);
+
           cont = false;
         }
 
@@ -84,7 +88,7 @@ public class EncryptedPassword implements Serializable {
     return cipherText;
   }
 
-  public void addPassword(char[] user, char[] password) throws IOException {
+   public static void addPassword(char[] id, char[] user, char[] password) throws IOException {
 
     FileInputStream fileIn;
     ObjectInputStream in;
@@ -96,8 +100,6 @@ public class EncryptedPassword implements Serializable {
 
     EncryptedPassword obj = null;
 
-    int lastId = getLastId();
-
     //Saving of password1 in a file
     FileOutputStream fileOut = new FileOutputStream(fileName);
     ObjectOutputStream out = new ObjectOutputStream(fileOut);
@@ -106,7 +108,7 @@ public class EncryptedPassword implements Serializable {
     user = CharArrayUtils.concat(user, spaceCharacter);
 
     char[] encryptedText = CharArrayUtils.concat(user, password);
-    out.writeObject(new EncryptedPassword(lastId + 1, encryptedText));
+    out.writeObject(new EncryptedPassword(id, encryptedText));
 
     // Clear out char[]
     CharArrayUtils.clear(user);

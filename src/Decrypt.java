@@ -8,7 +8,7 @@ public class Decrypt {
   public static char[] decrypt(char[] id, char[] encryptedText) throws Exception {
 
     // Take the id, hash it, convert it to a byte[], and use it as a salt
-    byte[] salt = CharArrayUtils.charsToBytes(Master.hashMasterPassword(id));
+    byte[] salt = CharArrayUtils.charsToBytes(Master.hash(id));
 
     SecretKey secretKey = Encrypt.getSecretKey(salt);
 

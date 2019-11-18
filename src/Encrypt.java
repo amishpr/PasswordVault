@@ -36,7 +36,7 @@ public class Encrypt {
       BadPaddingException, UnsupportedEncodingException, InvalidKeySpecException, InvalidAlgorithmParameterException {
 
     // Take the id, hash it, convert it to a byte[], and use it as a salt
-    byte[] salt = CharArrayUtils.charsToBytes(Master.hashMasterPassword(id));
+    byte[] salt = CharArrayUtils.charsToBytes(Master.hash(id));
 
     SecretKey secretKey = getSecretKey(salt);
 

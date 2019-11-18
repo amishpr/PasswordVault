@@ -3,12 +3,8 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.Base64;
 
 public class Master {
@@ -16,7 +12,11 @@ public class Master {
   private char[] masterPassword;
   private static String fileName = "master.txt";
 
-  static char[] hashMasterPassword(char[] masterPassword) throws NoSuchAlgorithmException {
+  public static String getFileName() {
+    return fileName;
+  }
+
+  static char[] hash(char[] masterPassword) throws NoSuchAlgorithmException {
     char[] salt = "TheBestSaltEver".toCharArray();
     char[] pepper = "AmishAndChristian".toCharArray();
 
@@ -37,7 +37,7 @@ public class Master {
       FileWriter writer = new FileWriter(fileName);
       BufferedWriter bufferedWriter = new BufferedWriter(writer);
 
-      bufferedWriter.write(hashMasterPassword(masterPassword));
+      bufferedWriter.write(hash(masterPassword));
       bufferedWriter.newLine();
     } catch (IOException | NoSuchAlgorithmException e) {
       System.err.println("Error #00010"); // Error saving new master password.
