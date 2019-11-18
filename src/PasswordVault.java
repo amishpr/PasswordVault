@@ -358,18 +358,18 @@ public class PasswordVault {
 
                         Password sharedPassword = listOfPasswords.get(id);
 
-                    EncryptedText encryptedSharedPassword = Encrypt.encryptText(sharedPassword.getPassword());
+//                    EncryptedText encryptedSharedPassword = Encrypt.encryptText(sharedPassword.getPassword());
 
-                    bufferedWriter.write("id=" + sharedPassword.getId());
-                    bufferedWriter.newLine();
-                    bufferedWriter.write("user=" + sharedPassword.getUser());
-                    bufferedWriter.newLine();
-                    bufferedWriter.write("password=" + encryptedSharedPassword.getCipherText());
-                    bufferedWriter.newLine();
-                    bufferedWriter.write("iv=" + encryptedSharedPassword.getInitializationVector());
-                    bufferedWriter.newLine();
-                    bufferedWriter.write("secretKey=" + encryptedSharedPassword.getSecretKey());
-                    bufferedWriter.newLine();
+//                    bufferedWriter.write("id=" + sharedPassword.getId());
+//                    bufferedWriter.newLine();
+//                    bufferedWriter.write("user=" + sharedPassword.getUser());
+//                    bufferedWriter.newLine();
+//                    bufferedWriter.write("password=" + encryptedSharedPassword.getCipherText());
+//                    bufferedWriter.newLine();
+//                    bufferedWriter.write("iv=" + encryptedSharedPassword.getInitializationVector());
+//                    bufferedWriter.newLine();
+//                    bufferedWriter.write("secretKey=" + encryptedSharedPassword.getSecretKey());
+//                    bufferedWriter.newLine();
 //                    String plainText = Decrypt.decryptText(encryptedSharedPassword.getCipherText(),
 //                        encryptedSharedPassword.getInitializationVector(), encryptedSharedPassword.getSecretKey());
 //                    bufferedWriter.write("plainText=" + plainText);

@@ -1,36 +1,35 @@
-import java.io.UnsupportedEncodingException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Scanner;
-import javax.crypto.BadPaddingException;
+import java.util.Base64;
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
-import javax.xml.bind.DatatypeConverter;
 
 public class Decrypt {
 
-  public static String decryptText(String cipherEncryptText, String initializationVector, String secretKey)
-      throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
-      InvalidAlgorithmParameterException, UnsupportedEncodingException,
-      IllegalBlockSizeException, BadPaddingException {
+  public static char[] decrypt(char[] id, char[] encryptedText) throws Exception {
 
-    byte[] cipherText = DatatypeConverter.parseBase64Binary(cipherEncryptText);
-    byte[] iv = DatatypeConverter.parseBase64Binary(initializationVector);
-    byte[] secret_key = DatatypeConverter.parseBase64Binary(secretKey);
+    // Take the id, hash it, convert it to a byte[], and use it as a salt
+    byte[] salt = CharArrayUtils.charsToBytes(Master.hashMasterPassword(id));
 
-    IvParameterSpec receiver_iv = new IvParameterSpec(iv);
-    SecretKey receiver_secret = new SecretKeySpec(secret_key, "AES");
+    SecretKey secretKey = Encrypt.getSecretKey(salt);
 
-    Cipher receiver_cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-    receiver_cipher.init(Cipher.DECRYPT_MODE, receiver_secret, receiver_iv);
+    // Make initializationVector using the hashed id/salt
+    IvParameterSpec initializationVector = Encrypt.getInitializationVector(salt);
 
-    String plaintext = new String(receiver_cipher.doFinal(cipherText), "UTF-8");
+    // Make Cipher
+    Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+    cipher.init(Cipher.DECRYPT_MODE, secretKey, initializationVector);
 
-    return plaintext;
+    byte[] decryptedCipherTextBytes = cipher.doFinal(Base64.getDecoder().decode(CharArrayUtils.charsToBytes(encryptedText)));
+
+    char[] decryptedCipherText = CharArrayUtils.bytesToChars(decryptedCipherTextBytes);
+
+    // Clear values
+    cipher = null;
+    secretKey = null;
+    initializationVector = null;
+    CharArrayUtils.clear(id);
+    CharArrayUtils.clearBytes(decryptedCipherTextBytes);
+
+    return decryptedCipherText;
   }
 }

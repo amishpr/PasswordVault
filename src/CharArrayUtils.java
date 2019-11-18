@@ -9,6 +9,10 @@ public class CharArrayUtils {
     java.util.Arrays.fill(chars, '0');
   }
 
+  static void clearBytes(byte[] bytes) {
+    java.util.Arrays.fill(bytes, (byte) '0');
+  }
+
   static char[] concat(char[] first, char[] second) {
     char[] result = new char[first.length + second.length];
 
