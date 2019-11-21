@@ -299,7 +299,7 @@ public class PasswordVault {
     }
   }
 
-  private void changeMasterPassword()
+  public void changeMasterPassword()
       throws NoSuchAlgorithmException
   {
     System.out.println("Change Master Password");
