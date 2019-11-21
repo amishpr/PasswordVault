@@ -5,7 +5,6 @@ import java.util.concurrent.TimeUnit;
 
 public class VaultSession {
 
-    private PassVault vault;
     private int timeLimit;
     private Timestamp timeout;
 
@@ -15,9 +14,11 @@ public class VaultSession {
         return active;
     }
 
+    public int getTimeLimit() {
+        return timeLimit;
+    }
 
-    public VaultSession(PassVault vault, int timeLimit) {
-        this.vault = vault;
+    public VaultSession(int timeLimit) {
         this.timeLimit = timeLimit;
     }
 
@@ -27,13 +28,12 @@ public class VaultSession {
     }
 
     public void endSession() {
-        active = false;
-        vault.logout();
+        System.out.println("Session has ended");
+        System.exit(-1);
     }
 
     public void extend(int duration) {
-//        long then = TimeUnit.MINUTES.toMillis(duration);
-        long then = TimeUnit.SECONDS.toMillis(10);
+        long then = TimeUnit.MINUTES.toMillis(duration);
         timeout = new Timestamp(System.currentTimeMillis() + then);
         new Timer().schedule(new checkSession(), then);
     }

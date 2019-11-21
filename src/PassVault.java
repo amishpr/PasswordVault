@@ -44,6 +44,7 @@ public class PassVault {
 
     public void logout() {
         authorized = false;
+
     }
 
     public boolean isAuthorized() { return authorized; }

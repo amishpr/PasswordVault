@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -7,13 +8,16 @@ public class Menu {
             "--------------------------------------------------";
 
     private PassVault vault;
+    private VaultSession session;
     private Scanner in = new Scanner(System.in);
 
-    public Menu(PassVault vault) {
+    public Menu(PassVault vault, VaultSession session) {
         this.vault = vault;
+        this.session = session;
     }
 
     public void listOptions() {
+        session.extend(session.getTimeLimit());
         // Display options
         System.out.println(lineBreak);
         System.out.println("Main Menu");
