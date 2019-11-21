@@ -10,15 +10,15 @@ public class PassVault {
     // ========================================
 
     private final int passAttempts;
-    private Scanner in;
+    private Scanner in = new Scanner(System.in);
+    private boolean authorized = false;
 
     // ========================================
     // Constructor
     // ========================================
 
-    public PassVault(int passAttempts, Scanner in) {
+    public PassVault(int passAttempts) {
         this.passAttempts = passAttempts;
-        this.in = in;
     }
 
     public PassVault() {
@@ -32,18 +32,21 @@ public class PassVault {
 
     public boolean login() {
         System.out.println("Login");
-        String i = in.next();
-        System.out.println(i);
-        return false;
+        if (in.next().equals("true")) {
+            authorized = true;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public boolean signUp() { return false; }
 
     public void logout() {
-
+        authorized = false;
     }
 
-    public boolean authorized() { return false; }
+    public boolean isAuthorized() { return authorized; }
 
     // extendSession(getSessionLimit());
 
@@ -51,13 +54,23 @@ public class PassVault {
     // Options
     // ========================================
 
-    public void addPass() {}
+    public void addPass() {
+        System.out.println("addPass");
+    }
 
-    public void listIds() {}
+    public void listIds() {
+        System.out.println("listIds");
+    }
 
-    public void findPass() {}
+    public void findPass() {
+        System.out.println("findPass");
+    }
 
-    public void sharePass() {}
+    public void sharePass() {
+        System.out.println("sharePass");
+    }
 
-    public void changeMasterPass() {}
+    public void changeMasterPass() {
+        System.out.println("changeMasterPass");
+    }
 }

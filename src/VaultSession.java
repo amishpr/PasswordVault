@@ -28,7 +28,7 @@ public class VaultSession {
 
     public void endSession() {
         active = false;
-        vault.login();
+        vault.logout();
     }
 
     public void extend(int duration) {

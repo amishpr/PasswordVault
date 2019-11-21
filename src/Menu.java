@@ -69,8 +69,4 @@ public class Menu {
             }
         }
     }
-
-    public void close() {
-        in.close();
-    }
 }
