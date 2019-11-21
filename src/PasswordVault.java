@@ -230,6 +230,65 @@ public class PasswordVault {
         } else {
           System.err.println("There are no passwords with that id"); // id not found.
         }
+
+
+    }
+
+    private void exportPassword()
+            throws NoSuchPaddingException, IllegalBlockSizeException,
+            BadPaddingException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException, InvalidAlgorithmParameterException {
+
+        System.out.println("Export Password");
+        System.out.println("====================");
+
+        if (authUser()) {
+            String id, fileName;
+            boolean complete = false;
+
+            while(!complete) {
+                System.out.println("Enter id of password: ");
+                id = input.nextLine();
+
+                if (listOfPasswords.containsKey(id) && CheckCert.checkFriendCert()) {
+
+                    System.out.println("Enter file name: ");
+                    fileName = input.nextLine();
+
+                    try {
+                        FileWriter writer = new FileWriter(fileName + ".txt", true);
+                        BufferedWriter bufferedWriter = new BufferedWriter(writer);
+
+                        Password sharedPassword = listOfPasswords.get(id);
+
+                    EncryptedText encryptedSharedPassword = Encrypt.encryptText(sharedPassword.getPassword());
+
+                    bufferedWriter.write("id=" + sharedPassword.getId());
+                    bufferedWriter.newLine();
+                    bufferedWriter.write("user=" + sharedPassword.getUser());
+                    bufferedWriter.newLine();
+                    bufferedWriter.write("password=" + encryptedSharedPassword.getCipherText());
+                    bufferedWriter.newLine();
+                    bufferedWriter.write("iv=" + encryptedSharedPassword.getInitializationVector());
+                    bufferedWriter.newLine();
+                    bufferedWriter.write("secretKey=" + encryptedSharedPassword.getSecretKey());
+                    bufferedWriter.newLine();
+//                    String plainText = Decrypt.decryptText(encryptedSharedPassword.getCipherText(),
+//                        encryptedSharedPassword.getInitializationVector(), encryptedSharedPassword.getSecretKey());
+//                    bufferedWriter.write("plainText=" + plainText);
+                    bufferedWriter.close();
+                } catch (IOException e) {
+                    System.err.println("Error creating shared password file.");
+                    e.printStackTrace();
+                }
+                complete = true;
+            } else {
+                System.err.println("Error #00012"); // id not found.
+            }
+        } } else {
+            System.out.println("The password you entered was incorrect");
+            mainMenu();
+        }
+    }
       }
     } else {
       System.out.println("The password you entered was incorrect");
@@ -237,75 +296,13 @@ public class PasswordVault {
     }
   }
 
-  //  void exportPassword()
-  //      throws NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException,
-  //          NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException,
-  //          InvalidAlgorithmParameterException {
-  //
-  //    System.out.println("Export Password");
-  //    System.out.println("====================");
-  //
-  //    if (authUser()) {
-  //      String id, fileName;
-  //      boolean complete = false;
-  //
-  //      while (!complete) {
-  //        System.out.println("Enter id of password: ");
-  //        id = input.nextLine();
-  //
-  //        if (listOfPasswords.containsKey(id)) {
-  //
-  //          System.out.println("Enter file name: ");
-  //          fileName = input.nextLine();
-  //
-  //          try {
-  //            FileWriter writer = new FileWriter(fileName + ".txt", true);
-  //            BufferedWriter bufferedWriter = new BufferedWriter(writer);
-  //
-  //            Password sharedPassword = listOfPasswords.get(id);
-  //
-  //            //                    EncryptedText encryptedSharedPassword =
-  //            // Encrypt.encryptText(sharedPassword.getPassword());
-  //
-  //            //                    bufferedWriter.write("id=" + sharedPassword.getId());
-  //            //                    bufferedWriter.newLine();
-  //            //                    bufferedWriter.write("user=" + sharedPassword.getUser());
-  //            //                    bufferedWriter.newLine();
-  //            //                    bufferedWriter.write("password=" +
-  //            // encryptedSharedPassword.getCipherText());
-  //            //                    bufferedWriter.newLine();
-  //            //                    bufferedWriter.write("iv=" +
-  //            // encryptedSharedPassword.getInitializationVector());
-  //            //                    bufferedWriter.newLine();
-  //            //                    bufferedWriter.write("secretKey=" +
-  //            // encryptedSharedPassword.getSecretKey());
-  //            //                    bufferedWriter.newLine();
-  //            //                    String plainText =
-  //            // Decrypt.decryptText(encryptedSharedPassword.getCipherText(),
-  //            //                        encryptedSharedPassword.getInitializationVector(),
-  //            // encryptedSharedPassword.getSecretKey());
-  //            //                    bufferedWriter.write("plainText=" + plainText);
-  //            bufferedWriter.close();
-  //          } catch (IOException e) {
-  //            System.err.println("Error #00002"); // Error saving data file.
-  //            e.printStackTrace();
-  //          }
-  //          complete = true;
-  //        } else {
-  //          System.err.println("There are no passwords with that id"); // id not found.
-  //        }
-  //      }
-  //    } else {
-  //      System.out.println("The password you entered was incorrect");
-  //      new MainMenu();
-  //    }
-  //  }
-
-  void changeMasterPassword()
-      throws NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException,
-          NoSuchAlgorithmException, InvalidKeyException {
-    System.out.println("Change Master Password");
-    System.out.println("====================");
+    private void changeMasterPassword()
+        throws NoSuchPaddingException, InvalidAlgorithmParameterException,
+        UnsupportedEncodingException, IllegalBlockSizeException, BadPaddingException,
+        NoSuchAlgorithmException, InvalidKeyException
+    {
+        System.out.println("Change Master Password");
+        System.out.println("====================");
 
     if (authUser()) {
       createMasterPassword();
