@@ -35,7 +35,7 @@ public class Master {
 
       bufferedWriter.write(hash(masterPassword));
       bufferedWriter.newLine();
-      // Todo: not writing to file
+      bufferedWriter.close();
     } catch (IOException | NoSuchAlgorithmException e) {
       System.err.println("Error #00010"); // Error saving new master password. // Todo Update Error
     }

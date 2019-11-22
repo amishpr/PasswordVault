@@ -1,5 +1,11 @@
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import java.io.*;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
@@ -41,6 +47,11 @@ public class PassVault {
 
     public boolean signUp() {
         System.out.println("Looks like this is your first time!");
+        try {
+            EncryptedPassword.createPassFile();
+        } catch (IOException e) {
+            System.out.println(); // Todo: error
+        }
         return createMasterPass();
     }
 
@@ -116,11 +127,11 @@ public class PassVault {
         char[] line;
 
         if ((cons = System.console()) != null) {
-            line = cons.readPassword("[%s]", "Password:");
+            line = cons.readPassword("[%s]", "Input:");
         } else {
             System.out.println(
                     "*WARNING* Your IDE does not support System.console(), using unsafe password read");
-            System.out.println("Password:");
+            System.out.println("Input:");
             line = input.nextLine().replaceAll("\\s+", "").toCharArray();
         }
 
@@ -143,21 +154,21 @@ public class PassVault {
 
             while (!complete) {
                 try {
-                    System.out.print("Enter id: ");
+                    System.out.print("Enter id\n");
                     char[] id = getSecureInput();
 
                     List<char[]> listOfIds = EncryptedPassword.getListOfIds();
 
                     if (!listOfIds.contains(id)) {
-                        System.out.print("Enter user: ");
+                        System.out.print("Enter user\n");
                         char[] user = getSecureInput();
 
-                        System.out.println("Would you like to generate a password? [Y/n]: ");
+                        System.out.println("Would you like to generate a password? [Y/n]:\n");
                         String response = getUnsecuredInput();
 
                         char[] password = {};
 
-                        if (response.equals("Y") || response.equals("YES")) {
+                        if (response.toUpperCase().equals("Y") || response.toUpperCase().equals("YES")) {
                             password = PasswordGenerator.generatePassword().toCharArray();
                         } else {
                             password = getSecureInput();
@@ -176,6 +187,20 @@ public class PassVault {
                     }
                 } catch (IOException e) {
                     System.out.println(); // Todo update error
+                } catch (InvalidKeySpecException e) {
+                    e.printStackTrace();
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                } catch (BadPaddingException e) {
+                    e.printStackTrace();
+                } catch (InvalidKeyException e) {
+                    e.printStackTrace();
+                } catch (InvalidAlgorithmParameterException e) {
+                    e.printStackTrace();
+                } catch (NoSuchPaddingException e) {
+                    e.printStackTrace();
+                } catch (IllegalBlockSizeException e) {
+                    e.printStackTrace();
                 }
             }
         }
@@ -200,12 +225,12 @@ public class PassVault {
 
             while (!complete) {
                 try {
-                    System.out.println("Enter id of password: ");
+                    System.out.println("Enter id of password\n");
                     char[] id = getSecureInput();
 
                     List<char[]> listOfIds = EncryptedPassword.getListOfIds();
 
-                    if (listOfIds.contains(id)) {
+                    if (CharArrayUtils.listContains(listOfIds, id)) {
                         char[] foundPassword = EncryptedPassword.getCipherText(id);
 
                         System.out.print("id = ");
@@ -230,9 +255,9 @@ public class PassVault {
                         System.err.println("There are no passwords with that id"); // id not found.
                     }
                 } catch (IOException e) {
-                    System.out.println(); // Todo update error
+                    System.out.println(e); // Todo update error
                 } catch (Exception e) {
-                    System.out.println(); // Todo update error
+                    System.out.println(e); // Todo update error
                 }
             }
         }

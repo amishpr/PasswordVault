@@ -1,3 +1,4 @@
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -19,14 +20,15 @@ public class Decrypt {
     Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
     cipher.init(Cipher.DECRYPT_MODE, secretKey, initializationVector);
 
-    byte[] decryptedCipherTextBytes = cipher.doFinal(Base64.getDecoder().decode(CharArrayUtils.charsToBytes(encryptedText)));
+    // Todo: fix issues
+//    byte[] decrypt = Base64.getDecoder().decode(CharArrayUtils.charsToBytes(encryptedText));
+    byte[] decrypt = Base64.getDecoder().decode(new String(encryptedText).getBytes("UTF-8"));
+
+    byte[] decryptedCipherTextBytes = cipher.doFinal(decrypt);
 
     char[] decryptedCipherText = CharArrayUtils.bytesToChars(decryptedCipherTextBytes);
 
     // Clear values
-    cipher = null;
-    secretKey = null;
-    initializationVector = null;
     CharArrayUtils.clear(id);
     CharArrayUtils.clearBytes(decryptedCipherTextBytes);
 

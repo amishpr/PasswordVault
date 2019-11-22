@@ -37,6 +37,14 @@ public class CharArrayUtils {
     return result;
   }
 
+  static boolean listContains(List<char[]> list, char[] chars) {
+    boolean same = false;
+    for (char[] c : list) {
+      if (Arrays.equals(chars, c)) {same = true;}
+    }
+    return same;
+  }
+
   static int getIndexOf(char[] chars, char find) {
     int index = 0;
     boolean found = false;
