@@ -305,8 +305,7 @@ public class PassVault {
                             CharArrayUtils.clearList(spiltList); // Clear username and password
 
                         } catch (IOException e) {
-                            System.err.println("Error creating shared password file.");
-                            e.printStackTrace();
+                            System.out.println("Error Code: #00001");
                         }
                         complete = true;
                     } else {

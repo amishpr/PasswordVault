@@ -104,7 +104,7 @@ public class EncryptedPassword implements Serializable {
       try {
         obj = (EncryptedPassword) in.readObject();
       } catch (ClassNotFoundException e) {
-        e.printStackTrace();
+          System.out.println("Error Code: #00007");
       }
       if (obj != null) {
 //        System.out.println("Object has been deserialized ");
