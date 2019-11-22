@@ -37,7 +37,7 @@ public class Master {
       bufferedWriter.newLine();
       bufferedWriter.close();
     } catch (IOException | NoSuchAlgorithmException e) {
-      System.err.println("Error #00010"); // Error saving new master password. // Todo Update Error
+      System.err.println("Error Code: #00001");
     }
   }
 

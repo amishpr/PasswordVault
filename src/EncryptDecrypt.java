@@ -52,13 +52,6 @@ public class EncryptDecrypt {
 
     char[] encryptedText = Base64.getEncoder().encodeToString(cipherTextBytes).toCharArray();
 
-    // Clear
-    cipher = null;
-    secretKey = null;
-    initializationVector = null;
-//    CharArrayUtils.clear(id);
-//    CharArrayUtils.clearBytes(cipherTextBytes);
-
     return encryptedText;
   }
 
@@ -76,17 +69,11 @@ public class EncryptDecrypt {
     Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
     cipher.init(Cipher.DECRYPT_MODE, secretKey, initializationVector);
 
-    // Todo: fix issues
-//    byte[] decrypt = Base64.getDecoder().decode(CharArrayUtils.charsToBytes(encryptedText));
     byte[] decrypt = Base64.getDecoder().decode(new String(encryptedText).getBytes("UTF-8"));
 
     byte[] decryptedCipherTextBytes = cipher.doFinal(decrypt);
 
     char[] decryptedCipherText = CharArrayUtils.bytesToChars(decryptedCipherTextBytes);
-
-    // Clear values
-//    CharArrayUtils.clear(id);
-//    CharArrayUtils.clearBytes(decryptedCipherTextBytes);
 
     return decryptedCipherText;
   }

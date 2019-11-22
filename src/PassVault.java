@@ -50,7 +50,7 @@ public class PassVault {
         try {
             EncryptedPassword.createPassFile();
         } catch (IOException e) {
-            System.out.println(); // Todo: error
+            System.out.println("Error Code: #00001");
         }
         return createMasterPass(false);
     }
@@ -113,7 +113,7 @@ public class PassVault {
             } catch (FileNotFoundException e) {
                 return signUp();
             } catch (NoSuchAlgorithmException | IOException e) {
-                System.out.println("ERROR CODE: "); // Todo Update Error
+                System.out.println("Error Code: #00004");
             }
         }
         System.out.println("You have reached your maximum allowed attempts, the program will now exit");
@@ -194,22 +194,8 @@ public class PassVault {
                     } else {
                         System.out.println("The id you entered already exists");
                     }
-                } catch (IOException e) {
-                    System.out.println(); // Todo update error
-                } catch (InvalidKeySpecException e) {
-                    e.printStackTrace();
-                } catch (NoSuchAlgorithmException e) {
-                    e.printStackTrace();
-                } catch (BadPaddingException e) {
-                    e.printStackTrace();
-                } catch (InvalidKeyException e) {
-                    e.printStackTrace();
-                } catch (InvalidAlgorithmParameterException e) {
-                    e.printStackTrace();
-                } catch (NoSuchPaddingException e) {
-                    e.printStackTrace();
-                } catch (IllegalBlockSizeException e) {
-                    e.printStackTrace();
+                } catch (IOException | InvalidKeySpecException | NoSuchAlgorithmException | BadPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | NoSuchPaddingException | IllegalBlockSizeException e) {
+                    System.out.println("Error Code: #00003");
                 }
             }
         }
@@ -224,7 +210,7 @@ public class PassVault {
 //                CharArrayUtils.clear(id);
             }
         } catch (IOException e) {
-            System.out.println(); // Todo update error
+            System.out.println("Error Code: #00002");
         }
     }
 
@@ -266,10 +252,8 @@ public class PassVault {
                     } else {
                         System.err.println("There are no passwords with that id"); // id not found.
                     }
-                } catch (IOException e) {
-                    System.out.println(e); // Todo update error
                 } catch (Exception e) {
-                    System.out.println(e); // Todo update error
+                    System.out.println("Error Code: #00002");
                 }
             }
         }
@@ -328,10 +312,8 @@ public class PassVault {
                     } else {
                         System.err.println("Id not found."); // id not found.
                     }
-                } catch (IOException e) {
-                    System.out.println(); // Todo update error
                 } catch (Exception e) {
-                    System.out.println(); // Todo update error
+                    System.out.println("Error Code: #00005");
                 }
             }
         }

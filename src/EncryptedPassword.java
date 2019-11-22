@@ -40,7 +40,7 @@ public class EncryptedPassword implements Serializable {
         try {
           tmpObj = (EncryptedPassword) in.readObject();
         } catch (ClassNotFoundException e) {
-//        e.printStackTrace(); // Todo Error
+            System.out.println("Error Code: #00007");
         }
         if (tmpObj != null) {
           encryptedPasswordList.add(tmpObj);
@@ -53,7 +53,7 @@ public class EncryptedPassword implements Serializable {
     } catch (EOFException e) {
       return encryptedPasswordList;
     } catch (IOException e) {
-      e.printStackTrace(); // Todo Error
+        System.out.println("Error code: #00001");
     }
     return encryptedPasswordList;
   }
@@ -73,7 +73,7 @@ public class EncryptedPassword implements Serializable {
             try {
                 obj = (EncryptedPassword) in.readObject();
             } catch (ClassNotFoundException e) {
-//        e.printStackTrace(); // Todo Error
+                System.out.println("Error Code: #00007");
             }
             if (obj != null) {
                 idList.add(obj.id);

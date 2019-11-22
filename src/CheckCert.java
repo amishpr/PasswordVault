@@ -28,13 +28,10 @@ public class CheckCert {
             Certificate issuerCert = (Certificate) ic.iterator().next();
 
             cert.verify(issuerCert.getPublicKey());
-
-//            System.out.println(cert);
             return true;
 
         } catch (CertificateException | FileNotFoundException | NoSuchAlgorithmException | InvalidKeyException | SignatureException | NoSuchProviderException e) {
-//            e.printStackTrace();
-            System.out.println("Error Code 43"); // Todo Error
+            System.out.println("Error Code: #00006");
             return false;
         }
     }
