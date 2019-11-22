@@ -34,7 +34,7 @@ public class CheckCert {
 
         } catch (CertificateException | FileNotFoundException | NoSuchAlgorithmException | InvalidKeyException | SignatureException | NoSuchProviderException e) {
 //            e.printStackTrace();
-            System.out.println("Error Code 43");
+            System.out.println("Error Code 43"); // Todo Error
             return false;
         }
     }

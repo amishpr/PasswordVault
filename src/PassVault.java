@@ -23,7 +23,7 @@ public class PassVault {
     // Constructor
     // ========================================
 
-    public PassVault(int passAttempts) {
+    PassVault(int passAttempts) {
         this.passAttempts = passAttempts;
     }
 
@@ -36,29 +36,34 @@ public class PassVault {
     // Authorization
     // ========================================
 
-    public boolean login() {
+    boolean login() throws Exception {
         System.out.println("=====[ Login ]=====");
         return authorize();
     }
 
-    public void logout() {
+    private void logout() {
         authorized = false;
     }
 
-    public boolean signUp() {
+    private boolean signUp() throws Exception {
         System.out.println("Looks like this is your first time!");
         try {
             EncryptedPassword.createPassFile();
         } catch (IOException e) {
             System.out.println(); // Todo: error
         }
-        return createMasterPass();
+        return createMasterPass(false);
     }
 
-    private boolean createMasterPass() {
+    private boolean createMasterPass(boolean rewritePassword) throws Exception {
         System.out.println("Please set the master password");
 
         char[] master = getSecureInput();
+
+        if (rewritePassword) {
+            EncryptedPassword.rewritePasswords(Master.getMasterPassword(), master);
+        }
+
         Master.setMasterPassword(master);
 
         // Clear
@@ -69,7 +74,7 @@ public class PassVault {
 
     public boolean isAuthorized() { return authorized; }
 
-    public boolean authorize() {
+    private boolean authorize() throws Exception {
         logout();
 
         int currentAttempts = passAttempts;
@@ -127,12 +132,14 @@ public class PassVault {
         char[] line;
 
         if ((cons = System.console()) != null) {
-            line = cons.readPassword("[%s]", "Input:");
+            line = cons.readPassword("[%s]", "Secure Input:");
         } else {
-            System.out.println(
-                    "*WARNING* Your IDE does not support System.console(), using unsafe password read");
-            System.out.println("Input:");
-            line = input.nextLine().replaceAll("\\s+", "").toCharArray();
+//            System.err.println("*WARNING* Your IDE does not support System.console()"
+//                + ", using unsafe password read");
+//            System.out.println("");
+            System.out.print("Unsecure Input: ");
+//            line = input.nextLine().replaceAll("\\s+", "").toCharArray();
+            line = input.nextLine().toCharArray();
         }
 
         return line;
@@ -140,14 +147,14 @@ public class PassVault {
 
     private String getUnsecuredInput() {
         Scanner input = new Scanner(System.in);
-        return input.nextLine().replaceAll("\\s+", "");
+        return input.nextLine();
     }
 
     // ========================================
     // Options
     // ========================================
 
-    public void addPass() {
+    void addPass() throws Exception {
         System.out.println("=====[ Add Password ]=====");
         if (authorize()) {
             boolean complete = false;
@@ -163,7 +170,7 @@ public class PassVault {
                         System.out.print("Enter user\n");
                         char[] user = getSecureInput();
 
-                        System.out.println("Would you like to generate a password? [Y/n]:\n");
+                        System.out.print("Would you like to generate a password? [Y/n]: ");
                         String response = getUnsecuredInput();
 
                         char[] password = {};
@@ -171,6 +178,7 @@ public class PassVault {
                         if (response.toUpperCase().equals("Y") || response.toUpperCase().equals("YES")) {
                             password = PasswordGenerator.generatePassword().toCharArray();
                         } else {
+                            System.out.println("Enter password: ");
                             password = getSecureInput();
                         }
 
@@ -206,19 +214,20 @@ public class PassVault {
         }
     }
 
-    public void listIds() {
+    void listIds() {
         System.out.println("=====[ List Ids ]=====");
         try {
-            for (char[] id : EncryptedPassword.getListOfIds()) {
+            List<char[]> charList = EncryptedPassword.getListOfIds();
+            for (char[] id : charList) {
                 System.out.println(id);
-                CharArrayUtils.clear(id);
+//                CharArrayUtils.clear(id);
             }
         } catch (IOException e) {
             System.out.println(); // Todo update error
         }
     }
 
-    public void findPass() {
+    void findPass() throws Exception {
         System.out.println("=====[ Find Password ]=====");
         if (authorize()) {
             boolean complete = false;
@@ -236,18 +245,20 @@ public class PassVault {
                         System.out.print("id = ");
                         System.out.println(id);
 
-                        char[] decryptedCipherText = Decrypt.decrypt(id, foundPassword);
-                        CharArrayUtils.clear(id);
+                        char[] decryptedCipherText = EncryptDecrypt.decrypt(id, foundPassword);
 
                         List<char[]> spiltList = CharArrayUtils.spilt(decryptedCipherText);
-                        CharArrayUtils.clear(decryptedCipherText);
 
                         System.out.print("user = ");
+                        assert spiltList != null;
                         System.out.println(spiltList.get(0));
 
                         System.out.print("password = ");
-                        System.out.print(spiltList.get(1));
+                        System.out.println(spiltList.get(1));
 
+                        // Clear
+                        CharArrayUtils.clear(decryptedCipherText);
+                        CharArrayUtils.clear(id);
                         CharArrayUtils.clearList(spiltList);
 
                         complete = true;
@@ -263,7 +274,7 @@ public class PassVault {
         }
     }
 
-    public void sharePass() {
+    void sharePass() throws Exception {
         System.out.println("=====[ Add Password ]=====");
 
         if (authorize()) {
@@ -274,7 +285,7 @@ public class PassVault {
                     System.out.println("Enter id of password: ");
                     char[] id = getSecureInput();
 
-                    if (EncryptedPassword.getListOfIds().contains(id) && CheckCert.checkFriendCert()) {
+                    if (CharArrayUtils.listContains(EncryptedPassword.getListOfIds(), id) && CheckCert.checkFriendCert()) {
 
                         System.out.println("Enter file name: ");
                         char[] fileName = getUnsecuredInput().toCharArray();
@@ -290,15 +301,12 @@ public class PassVault {
 
                             // Decrypt username and password
                             char[] cipherText = EncryptedPassword.getCipherText(id);
-                            char[] decryptedCipherText = Decrypt.decrypt(id, cipherText);
+                            char[] decryptedCipherText = EncryptDecrypt.decrypt(id, cipherText);
 
                             List<char[]> spiltList = CharArrayUtils.spilt(decryptedCipherText);
-                            CharArrayUtils.clear(decryptedCipherText);
-
-                            // Clear id
-                            CharArrayUtils.clear(id);
 
                             bufferedWriter.write("user=");
+                            assert spiltList != null;
                             bufferedWriter.write(spiltList.get(0)); // username
                             bufferedWriter.newLine();
                             bufferedWriter.write("password=");
@@ -306,6 +314,9 @@ public class PassVault {
                             bufferedWriter.newLine();
                             bufferedWriter.close();
 
+                            // Clear
+                            CharArrayUtils.clear(id);
+                            CharArrayUtils.clear(decryptedCipherText);
                             CharArrayUtils.clearList(spiltList); // Clear username and password
 
                         } catch (IOException e) {
@@ -314,7 +325,7 @@ public class PassVault {
                         }
                         complete = true;
                     } else {
-                        System.err.println("Error #00012"); // id not found.
+                        System.err.println("Id not found."); // id not found.
                     }
                 } catch (IOException e) {
                     System.out.println(); // Todo update error
@@ -325,10 +336,10 @@ public class PassVault {
         }
     }
 
-    public void changeMasterPass() {
+    void changeMasterPass() throws Exception {
         System.out.println("=====[ Change Master Password ]=====");
         if (authorize()) {
-            createMasterPass();
+            createMasterPass(true);
         }
     }
 }

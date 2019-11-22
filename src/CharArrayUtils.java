@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 public class CharArrayUtils {
 
   static void clear(char[] chars) {
-    java.util.Arrays.fill(chars, '0');
+//    java.util.Arrays.fill(chars, '0');
   }
 
   static void clearList(List<char[]> charList) {
@@ -31,8 +31,8 @@ public class CharArrayUtils {
     System.arraycopy(first, 0, result, 0, first.length);
     System.arraycopy(second, 0, result, first.length, second.length);
 
-    clear(first);
-    clear(second);
+//    clear(first);
+//    clear(second);
 
     return result;
   }
@@ -52,6 +52,7 @@ public class CharArrayUtils {
     for(char c : chars) {
       if(c == find) {
         found = true;
+        break;
       }
       index++;
     }
@@ -73,10 +74,16 @@ public class CharArrayUtils {
     }
 
     char[] first = new char[spiltIndex];
-    char[] second = new char[chars.length - spiltIndex - 1];
+    int secondLength = chars.length - spiltIndex - 1;
+
+    if (secondLength <= -1) {
+      secondLength = 0;
+    }
+
+    char[] second = new char[secondLength];
 
     System.arraycopy(chars, 0, first, 0, spiltIndex);
-    System.arraycopy(chars, spiltIndex + 1, second, 0, chars.length - spiltIndex - 1);
+    System.arraycopy(chars, spiltIndex + 1, second, 0, secondLength);
 
     List<char[]> spiltChars = new ArrayList<>();
 

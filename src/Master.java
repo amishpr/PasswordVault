@@ -42,12 +42,11 @@ public class Master {
   }
 
   static char[] getMasterPassword() throws IOException {
-    char[] password = new char[1];
     FileReader reader = new FileReader(fileName);
     BufferedReader bufferedReader = new BufferedReader(reader);
-
-    password = bufferedReader.readLine().toCharArray();
+    char[] password = bufferedReader.readLine().toCharArray();
     reader.close();
+
     return password;
   }
 }

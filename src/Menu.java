@@ -16,7 +16,7 @@ public class Menu {
         this.session = session;
     }
 
-    public void listOptions() {
+    public void listOptions() throws Exception {
         session.extend(session.getTimeLimit());
         // Display options
         System.out.println(lineBreak);
