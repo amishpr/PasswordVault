@@ -61,10 +61,11 @@ public class PassVault {
         char[] master = getSecureInput();
 
         if (rewritePassword) {
-            EncryptedPassword.rewritePasswords(Master.getMasterPassword(), master);
+            EncryptedPassword.rewritePasswords(master);
+        } else {
+            Master.setMasterPassword(master);
         }
 
-        Master.setMasterPassword(master);
 
         // Clear
         CharArrayUtils.clear(master);

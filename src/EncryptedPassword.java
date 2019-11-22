@@ -26,7 +26,7 @@ public class EncryptedPassword implements Serializable {
     this.cipherText = cipherText;
   }
 
-  static List<EncryptedPassword> getAllEncryptedPasswordObjects() {
+  private static List<EncryptedPassword> getAllEncryptedPasswordObjects() {
     boolean cont = true;
     EncryptedPassword tmpObj = null;
 
@@ -89,7 +89,7 @@ public class EncryptedPassword implements Serializable {
     }
   }
 
-  public static char[] getCipherText(char[] id) throws IOException {
+  static char[] getCipherText(char[] id) throws IOException {
     FileInputStream file;
     ObjectInputStream in;
 
@@ -128,7 +128,7 @@ public class EncryptedPassword implements Serializable {
     return cipherText;
   }
 
-  public static void createPassFile() throws IOException {
+  static void createPassFile() throws IOException {
       try {
           new FileReader(fileName);
       } catch (FileNotFoundException e) {
@@ -138,47 +138,83 @@ public class EncryptedPassword implements Serializable {
       }
   }
 
-  static void rewritePasswords(char[] oldMasterPassword, char[] newMasterPassword)
+  static void rewritePasswords(char[] newMasterPassword)
       throws Exception {
 
     List<EncryptedPassword> encryptedPasswordList = getAllEncryptedPasswordObjects();
+    if (encryptedPasswordList.size() > 0) {
+      List<UnencryptedPassword> unencryptedPasswordList = new ArrayList<>();
+      List<EncryptedPassword> newEncryptedPasswordList = new ArrayList<>();
 
-    for(EncryptedPassword encryptedPassword: encryptedPasswordList) {
+      for(EncryptedPassword encryptedPassword: encryptedPasswordList) {
 
-      char[] id = encryptedPassword.id;
+        char[] id = encryptedPassword.id;
 
-      char[] decryptedCipherText = EncryptDecrypt.decrypt(id, encryptedPassword.cipherText);
+        char[] decryptedCipherText = EncryptDecrypt.decrypt(id, encryptedPassword.cipherText);
 
-      List<char[]> spiltList = CharArrayUtils.spilt(decryptedCipherText);
+        List<char[]> spiltList = CharArrayUtils.spilt(decryptedCipherText);
 
-      char[] username = spiltList.get(0);
-      char[] password = spiltList.get(1);
+        char[] username = spiltList.get(0);
+        char[] password = spiltList.get(1);
 
-      // Todo actually implement this
+        unencryptedPasswordList.add(new UnencryptedPassword(id, username, password));
+
+      }
+
+      // Set new master password
+      Master.setMasterPassword(newMasterPassword);
+
+      for(UnencryptedPassword unencryptedPassword : unencryptedPasswordList) {
+        EncryptedPassword newEncryptedPassword = makePasswordObject(unencryptedPassword.getId(), unencryptedPassword
+            .getUser(), unencryptedPassword.getPassword());
+        newEncryptedPasswordList.add(newEncryptedPassword);
+      }
+
+      // Clear passwords.txt
+      PrintWriter writer = new PrintWriter(fileName);
+      writer.print("");
+      writer.close();
+
+      saveListOfPasswordsToFile(newEncryptedPasswordList);
     }
   }
+
+   private static EncryptedPassword makePasswordObject(char[] id, char[] user, char[] password)
+       throws NoSuchPaddingException, InvalidKeySpecException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, InvalidKeyException, IOException {
+
+     char[] spaceCharacter = " ".toCharArray();
+     user = CharArrayUtils.concat(user, spaceCharacter);
+
+     char[] encryptedText = CharArrayUtils.concat(user, password);
+
+     return new EncryptedPassword(id, EncryptDecrypt.encryptText(id, encryptedText));
+
+   }
+
+   private static void saveListOfPasswordsToFile(List<EncryptedPassword> encryptedPasswordList)
+       throws IOException {
+
+     //Saving of password in a file
+     FileOutputStream fileOut = new FileOutputStream(fileName);
+     ObjectOutputStream out = new ObjectOutputStream(fileOut);
+
+     for (EncryptedPassword encryptedPass: encryptedPasswordList) {
+       out.writeObject(encryptedPass);
+     }
+
+     out.close();
+     fileOut.close();
+   }
 
    static void addPassword(char[] id, char[] user, char[] password) throws IOException, NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException, InvalidKeySpecException {
 
     List<EncryptedPassword> encryptedPasswordList = getAllEncryptedPasswordObjects();
 
-    //Saving of password in a file
-    FileOutputStream fileOut = new FileOutputStream(fileName);
-    ObjectOutputStream out = new ObjectOutputStream(fileOut);
-
-    char[] spaceCharacter = " ".toCharArray();
-    user = CharArrayUtils.concat(user, spaceCharacter);
-
-    char[] encryptedText = CharArrayUtils.concat(user, password);
-
-    EncryptedPassword encryptedPassword = new EncryptedPassword(id, EncryptDecrypt
-        .encryptText(id, encryptedText));
+    EncryptedPassword encryptedPassword = makePasswordObject(id, user, password);
 
     encryptedPasswordList.add(encryptedPassword);
 
-    for (EncryptedPassword encryptedPass: encryptedPasswordList) {
-      out.writeObject(encryptedPass);
-    }
+    saveListOfPasswordsToFile(encryptedPasswordList);
 
 //    // Clear out char[]
 //    CharArrayUtils.clear(user);
@@ -186,10 +222,7 @@ public class EncryptedPassword implements Serializable {
 //    CharArrayUtils.clear(encryptedText);
 //    CharArrayUtils.clear(spaceCharacter);
 
-    out.close();
-    fileOut.close();
-
-    System.out.println("Object has been serialized");
+    System.out.println("Password saved to file.");
   }
 
 }
