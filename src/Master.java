@@ -1,8 +1,4 @@
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
@@ -39,22 +35,19 @@ public class Master {
 
       bufferedWriter.write(hash(masterPassword));
       bufferedWriter.newLine();
+      // Todo: not writing to file
     } catch (IOException | NoSuchAlgorithmException e) {
-      System.err.println("Error #00010"); // Error saving new master password.
+      System.err.println("Error #00010"); // Error saving new master password. // Todo Update Error
     }
   }
 
-  static char[] getMasterPassword() {
+  static char[] getMasterPassword() throws IOException {
     char[] password = new char[1];
-    try {
-      FileReader reader = new FileReader(fileName);
-      BufferedReader bufferedReader = new BufferedReader(reader);
+    FileReader reader = new FileReader(fileName);
+    BufferedReader bufferedReader = new BufferedReader(reader);
 
-      password = bufferedReader.readLine().toCharArray();
-      reader.close();
-    } catch (IOException e) {
-      System.err.println("Error #00008"); // Error loading data file.
-    }
+    password = bufferedReader.readLine().toCharArray();
+    reader.close();
     return password;
   }
 }
