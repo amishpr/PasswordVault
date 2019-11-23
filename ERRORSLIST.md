@@ -9,3 +9,4 @@
 | #00005 | Error exporting password |
 | #00006 | Error with certificate |
 | #00007 | Error class not found |
+| #00008 | Error encrypting with cert |

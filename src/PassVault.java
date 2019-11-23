@@ -5,6 +5,7 @@ import java.io.*;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 import java.util.List;
@@ -50,7 +51,7 @@ public class PassVault {
         try {
             EncryptedPassword.createPassFile();
         } catch (IOException e) {
-            System.out.println("Error Code: #00001");
+            System.err.println("Error Code: #00001");
         }
         return createMasterPass(false);
     }
@@ -65,7 +66,6 @@ public class PassVault {
         } else {
             Master.setMasterPassword(master);
         }
-
 
         // Clear
         CharArrayUtils.clear(master);
@@ -113,7 +113,7 @@ public class PassVault {
             } catch (FileNotFoundException e) {
                 return signUp();
             } catch (NoSuchAlgorithmException | IOException e) {
-                System.out.println("Error Code: #00004");
+                System.err.println("Error Code: #00004");
             }
         }
         System.out.println("You have reached your maximum allowed attempts, the program will now exit");
@@ -195,7 +195,7 @@ public class PassVault {
                         System.out.println("The id you entered already exists");
                     }
                 } catch (IOException | InvalidKeySpecException | NoSuchAlgorithmException | BadPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | NoSuchPaddingException | IllegalBlockSizeException e) {
-                    System.out.println("Error Code: #00003");
+                    System.err.println("Error Code: #00003");
                 }
             }
         }
@@ -210,7 +210,7 @@ public class PassVault {
 //                CharArrayUtils.clear(id);
             }
         } catch (IOException e) {
-            System.out.println("Error Code: #00002");
+            System.err.println("Error Code: #00002");
         }
     }
 
@@ -253,7 +253,7 @@ public class PassVault {
                         System.err.println("There are no passwords with that id"); // id not found.
                     }
                 } catch (Exception e) {
-                    System.out.println("Error Code: #00002");
+                    System.err.println("Error Code: #00002");
                 }
             }
         }
@@ -270,33 +270,39 @@ public class PassVault {
                     System.out.println("Enter id of password: ");
                     char[] id = getSecureInput();
 
-                    if (CharArrayUtils.listContains(EncryptedPassword.getListOfIds(), id) && CheckCert.checkFriendCert()) {
+                    Certificate cert = CheckCert.getCert();
 
-                        System.out.println("Enter file name: ");
-                        char[] fileName = getUnsecuredInput().toCharArray();
+                    if (CharArrayUtils.listContains(EncryptedPassword.getListOfIds(), id) && CheckCert.checkFriendCert(cert)) {
+                        System.out.println("Enter password output file name: ");
+                        String fileName = getUnsecuredInput();
+
+                        if (!fileName.contains(".txt")) {
+                            fileName += ".txt";
+                        }
 
                         try {
-                            FileWriter writer = new FileWriter(Arrays.toString(fileName), true);
+                            FileWriter writer = new FileWriter(fileName, true);
                             BufferedWriter bufferedWriter = new BufferedWriter(writer);
-
-                            // Write id to file
-                            bufferedWriter.write("id=");
-                            bufferedWriter.write(id);
-                            bufferedWriter.newLine();
 
                             // Decrypt username and password
                             char[] cipherText = EncryptedPassword.getCipherText(id);
                             char[] decryptedCipherText = EncryptDecrypt.decrypt(id, cipherText);
 
                             List<char[]> spiltList = CharArrayUtils.spilt(decryptedCipherText);
-
-                            bufferedWriter.write("user=");
                             assert spiltList != null;
-                            bufferedWriter.write(spiltList.get(0)); // username
-                            bufferedWriter.newLine();
-                            bufferedWriter.write("password=");
-                            bufferedWriter.write(spiltList.get(1)); // password
-                            bufferedWriter.newLine();
+                            char[] data =
+                                    CharArrayUtils.concat(
+                                            "id: ".toCharArray(), CharArrayUtils.concat(
+                                                    id, CharArrayUtils.concat(
+                                                            "user: ".toCharArray(), CharArrayUtils.concat(
+                                                                    spiltList.get(0), CharArrayUtils.concat(
+                                                                            "password: ".toCharArray(),
+                                                                            spiltList.get(1)
+                                                            )))));
+
+                            System.out.println(data);
+
+                            bufferedWriter.write(CheckCert.encryptWithCert(cert, data));
                             bufferedWriter.close();
 
                             // Clear
@@ -305,14 +311,14 @@ public class PassVault {
                             CharArrayUtils.clearList(spiltList); // Clear username and password
 
                         } catch (IOException e) {
-                            System.out.println("Error Code: #00001");
+                            System.err.println("Error Code: #00001");
                         }
                         complete = true;
                     } else {
                         System.err.println("Id not found."); // id not found.
                     }
                 } catch (Exception e) {
-                    System.out.println("Error Code: #00005");
+                    System.err.println("Error Code: #00005");
                 }
             }
         }
