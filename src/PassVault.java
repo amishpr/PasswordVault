@@ -192,7 +192,7 @@ public class PassVault {
 
                         complete = true;
                     } else {
-                        System.out.println("The id you entered already exists");
+                        System.err.println("The id you entered already exists");
                     }
                 } catch (IOException | InvalidKeySpecException | NoSuchAlgorithmException | BadPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | NoSuchPaddingException | IllegalBlockSizeException e) {
                     System.err.println("Error Code: #00003");
@@ -207,8 +207,9 @@ public class PassVault {
             List<char[]> charList = EncryptedPassword.getListOfIds();
             for (char[] id : charList) {
                 System.out.println(id);
-//                CharArrayUtils.clear(id);
             }
+            // Clear
+            CharArrayUtils.clearList(charList);
         } catch (IOException e) {
             System.err.println("Error Code: #00002");
         }
@@ -299,11 +300,9 @@ public class PassVault {
                                                                             "password: ".toCharArray(),
                                                                             spiltList.get(1)
                                                             )))));
-
-                            System.out.println(data);
-
                             bufferedWriter.write(CheckCert.encryptWithCert(cert, data));
                             bufferedWriter.close();
+                            writer.close();
 
                             // Clear
                             CharArrayUtils.clear(id);

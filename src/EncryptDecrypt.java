@@ -69,7 +69,7 @@ public class EncryptDecrypt {
     Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
     cipher.init(Cipher.DECRYPT_MODE, secretKey, initializationVector);
 
-    byte[] decrypt = Base64.getDecoder().decode(new String(encryptedText).getBytes("UTF-8"));
+    byte[] decrypt = Base64.getDecoder().decode(CharArrayUtils.charsToBytes(encryptedText));
 
     byte[] decryptedCipherTextBytes = cipher.doFinal(decrypt);
 

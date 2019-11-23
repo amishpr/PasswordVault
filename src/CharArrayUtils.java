@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 public class CharArrayUtils {
 
   static void clear(char[] chars) {
-//    java.util.Arrays.fill(chars, '0');
+    java.util.Arrays.fill(chars, '0');
   }
 
   static void clearList(List<char[]> charList) {
@@ -30,9 +30,6 @@ public class CharArrayUtils {
 
     System.arraycopy(first, 0, result, 0, first.length);
     System.arraycopy(second, 0, result, first.length, second.length);
-
-//    clear(first);
-//    clear(second);
 
     return result;
   }

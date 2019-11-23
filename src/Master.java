@@ -19,9 +19,9 @@ public class Master {
     char[] saltedPassword = CharArrayUtils
         .concat(CharArrayUtils.concat(salt, masterPassword), pepper);
 
+    // Clear
     CharArrayUtils.clear(salt);
     CharArrayUtils.clear(pepper);
-    CharArrayUtils.clear(masterPassword);
 
     return CharArrayUtils.bytesToChars(Base64.getEncoder()
         .encode(MessageDigest.getInstance("SHA-256")

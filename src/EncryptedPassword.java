@@ -107,20 +107,10 @@ public class EncryptedPassword implements Serializable {
           System.err.println("Error Code: #00007");
       }
       if (obj != null) {
-//        System.out.println("Object has been deserialized ");
-//        System.out.println("id = " + obj.id);
-//        System.out.println("user = " + Arrays.toString(obj.cipherText));
-
         if (Arrays.equals(id, obj.id)) {
           cipherText = obj.cipherText;
-
-          // Clear obj
-//            CharArrayUtils.clear(obj.id);
-//            CharArrayUtils.clear(obj.cipherText);
-
           cont = false;
         }
-
       } else {
         cont = false;
       }
@@ -158,7 +148,6 @@ public class EncryptedPassword implements Serializable {
         char[] password = spiltList.get(1);
 
         unencryptedPasswordList.add(new UnencryptedPassword(id, username, password));
-
       }
 
       // Set new master password
@@ -215,12 +204,6 @@ public class EncryptedPassword implements Serializable {
     encryptedPasswordList.add(encryptedPassword);
 
     saveListOfPasswordsToFile(encryptedPasswordList);
-
-//    // Clear out char[]
-//    CharArrayUtils.clear(user);
-//    CharArrayUtils.clear(password);
-//    CharArrayUtils.clear(encryptedText);
-//    CharArrayUtils.clear(spaceCharacter);
 
     System.out.println("Password saved to file.");
   }

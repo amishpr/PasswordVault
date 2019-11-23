@@ -1,16 +1,10 @@
+import java.util.Base64;
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
-import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.KeySpec;
-import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Collection;
 import java.util.Scanner;
@@ -47,7 +41,7 @@ public class CheckCert {
         }
     }
 
-    public static String encryptWithCert(Certificate cert, char[] data) {
+    public static char[] encryptWithCert(Certificate cert, char[] data) {
         try {
             PublicKey publicKey = cert.getPublicKey();
 
@@ -58,7 +52,7 @@ public class CheckCert {
 
             byte[] encryptedBytes = cipher.doFinal(CharArrayUtils.charsToBytes(data));
 
-            return DatatypeConverter.printBase64Binary(encryptedBytes);
+            return CharArrayUtils.bytesToChars(Base64.getEncoder().encode(encryptedBytes));
         } catch (Exception e) {
             System.err.println("Error Code: #00008" + e);
             return null;
