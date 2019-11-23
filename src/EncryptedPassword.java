@@ -1,7 +1,15 @@
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.EOFException;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
+import java.io.Serializable;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -9,6 +17,9 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 
 public class EncryptedPassword implements Serializable {
 
@@ -40,7 +51,7 @@ public class EncryptedPassword implements Serializable {
         try {
           tmpObj = (EncryptedPassword) in.readObject();
         } catch (ClassNotFoundException e) {
-            System.err.println("Error Code: #00007");
+          System.err.println("Error Code: #00007");
         }
         if (tmpObj != null) {
           encryptedPasswordList.add(tmpObj);
@@ -53,7 +64,7 @@ public class EncryptedPassword implements Serializable {
     } catch (EOFException e) {
       return encryptedPasswordList;
     } catch (IOException e) {
-        System.err.println("Error code: #00001");
+      System.err.println("Error code: #00001");
     }
     return encryptedPasswordList;
   }
@@ -66,26 +77,26 @@ public class EncryptedPassword implements Serializable {
     EncryptedPassword obj = null;
 
     try {
-        FileInputStream fileIn = new FileInputStream(fileName);
-        ObjectInputStream in = new ObjectInputStream(fileIn);
+      FileInputStream fileIn = new FileInputStream(fileName);
+      ObjectInputStream in = new ObjectInputStream(fileIn);
 
-        while (cont) {
-            try {
-                obj = (EncryptedPassword) in.readObject();
-            } catch (ClassNotFoundException e) {
-                System.err.println("Error Code: #00007");
-            }
-            if (obj != null) {
-                idList.add(obj.id);
-            } else {
-                cont = false;
-            }
+      while (cont) {
+        try {
+          obj = (EncryptedPassword) in.readObject();
+        } catch (ClassNotFoundException e) {
+          System.err.println("Error Code: #00007");
         }
-        fileIn.close();
-        in.close();
-        return idList;
+        if (obj != null) {
+          idList.add(obj.id);
+        } else {
+          cont = false;
+        }
+      }
+      fileIn.close();
+      in.close();
+      return idList;
     } catch (EOFException e) {
-        return idList;
+      return idList;
     }
   }
 
@@ -104,7 +115,7 @@ public class EncryptedPassword implements Serializable {
       try {
         obj = (EncryptedPassword) in.readObject();
       } catch (ClassNotFoundException e) {
-          System.err.println("Error Code: #00007");
+        System.err.println("Error Code: #00007");
       }
       if (obj != null) {
         if (Arrays.equals(id, obj.id)) {
@@ -119,24 +130,23 @@ public class EncryptedPassword implements Serializable {
   }
 
   static void createPassFile() throws IOException {
-      try {
-          new FileReader(fileName);
-      } catch (FileNotFoundException e) {
-          FileWriter writer = new FileWriter(fileName);
-          BufferedWriter bufferedWriter = new BufferedWriter(writer);
-          bufferedWriter.close();
-      }
+    try {
+      new FileReader(fileName);
+    } catch (FileNotFoundException e) {
+      FileWriter writer = new FileWriter(fileName);
+      BufferedWriter bufferedWriter = new BufferedWriter(writer);
+      bufferedWriter.close();
+    }
   }
 
-  static void rewritePasswords(char[] newMasterPassword)
-      throws Exception {
+  static void rewritePasswords(char[] newMasterPassword) throws Exception {
 
     List<EncryptedPassword> encryptedPasswordList = getAllEncryptedPasswordObjects();
     if (encryptedPasswordList.size() > 0) {
       List<UnencryptedPassword> unencryptedPasswordList = new ArrayList<>();
       List<EncryptedPassword> newEncryptedPasswordList = new ArrayList<>();
 
-      for(EncryptedPassword encryptedPassword: encryptedPasswordList) {
+      for (EncryptedPassword encryptedPassword : encryptedPasswordList) {
 
         char[] id = encryptedPassword.id;
 
@@ -153,9 +163,12 @@ public class EncryptedPassword implements Serializable {
       // Set new master password
       Master.setMasterPassword(newMasterPassword);
 
-      for(UnencryptedPassword unencryptedPassword : unencryptedPasswordList) {
-        EncryptedPassword newEncryptedPassword = makePasswordObject(unencryptedPassword.getId(), unencryptedPassword
-            .getUser(), unencryptedPassword.getPassword());
+      for (UnencryptedPassword unencryptedPassword : unencryptedPasswordList) {
+        EncryptedPassword newEncryptedPassword =
+            makePasswordObject(
+                unencryptedPassword.getId(),
+                unencryptedPassword.getUser(),
+                unencryptedPassword.getPassword());
         newEncryptedPasswordList.add(newEncryptedPassword);
       }
 
@@ -168,34 +181,38 @@ public class EncryptedPassword implements Serializable {
     }
   }
 
-   private static EncryptedPassword makePasswordObject(char[] id, char[] user, char[] password)
-       throws NoSuchPaddingException, InvalidKeySpecException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, InvalidKeyException, IOException {
+  private static EncryptedPassword makePasswordObject(char[] id, char[] user, char[] password)
+      throws NoSuchPaddingException, InvalidKeySpecException, NoSuchAlgorithmException,
+          IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException,
+          InvalidKeyException, IOException {
 
-     char[] spaceCharacter = " ".toCharArray();
-     user = CharArrayUtils.concat(user, spaceCharacter);
+    char[] spaceCharacter = " ".toCharArray();
+    user = CharArrayUtils.concat(user, spaceCharacter);
 
-     char[] encryptedText = CharArrayUtils.concat(user, password);
+    char[] encryptedText = CharArrayUtils.concat(user, password);
 
-     return new EncryptedPassword(id, EncryptDecrypt.encryptText(id, encryptedText));
+    return new EncryptedPassword(id, EncryptDecrypt.encryptText(id, encryptedText));
+  }
 
-   }
+  private static void saveListOfPasswordsToFile(List<EncryptedPassword> encryptedPasswordList)
+      throws IOException {
 
-   private static void saveListOfPasswordsToFile(List<EncryptedPassword> encryptedPasswordList)
-       throws IOException {
+    // Saving of password in a file
+    FileOutputStream fileOut = new FileOutputStream(fileName);
+    ObjectOutputStream out = new ObjectOutputStream(fileOut);
 
-     //Saving of password in a file
-     FileOutputStream fileOut = new FileOutputStream(fileName);
-     ObjectOutputStream out = new ObjectOutputStream(fileOut);
+    for (EncryptedPassword encryptedPass : encryptedPasswordList) {
+      out.writeObject(encryptedPass);
+    }
 
-     for (EncryptedPassword encryptedPass: encryptedPasswordList) {
-       out.writeObject(encryptedPass);
-     }
+    out.close();
+    fileOut.close();
+  }
 
-     out.close();
-     fileOut.close();
-   }
-
-   static void addPassword(char[] id, char[] user, char[] password) throws IOException, NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException, InvalidKeySpecException {
+  static void addPassword(char[] id, char[] user, char[] password)
+      throws IOException, NoSuchPaddingException, InvalidAlgorithmParameterException,
+          NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException,
+          InvalidKeyException, InvalidKeySpecException {
 
     List<EncryptedPassword> encryptedPasswordList = getAllEncryptedPasswordObjects();
 
@@ -207,5 +224,4 @@ public class EncryptedPassword implements Serializable {
 
     System.out.println("Password saved to file.");
   }
-
 }

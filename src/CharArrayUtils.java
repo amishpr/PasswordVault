@@ -3,11 +3,7 @@ import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public class CharArrayUtils {
 
@@ -16,7 +12,7 @@ public class CharArrayUtils {
   }
 
   static void clearList(List<char[]> charList) {
-    for(char[] chars: charList) {
+    for (char[] chars : charList) {
       java.util.Arrays.fill(chars, '0');
     }
   }
@@ -37,7 +33,9 @@ public class CharArrayUtils {
   static boolean listContains(List<char[]> list, char[] chars) {
     boolean same = false;
     for (char[] c : list) {
-      if (Arrays.equals(chars, c)) {same = true;}
+      if (Arrays.equals(chars, c)) {
+        same = true;
+      }
     }
     return same;
   }
@@ -46,8 +44,8 @@ public class CharArrayUtils {
     int index = 0;
     boolean found = false;
 
-    for(char c : chars) {
-      if(c == find) {
+    for (char c : chars) {
+      if (c == find) {
         found = true;
         break;
       }
@@ -65,7 +63,7 @@ public class CharArrayUtils {
 
     int spiltIndex = getIndexOf(chars, ' ');
 
-    if(spiltIndex == -1) {
+    if (spiltIndex == -1) {
       System.err.println("Error: #0004");
       return null;
     }
@@ -91,17 +89,14 @@ public class CharArrayUtils {
   }
 
   // https://stackoverflow.com/a/43996428
-  static byte[] charsToBytes(char[] chars)
-  {
+  static byte[] charsToBytes(char[] chars) {
     final ByteBuffer byteBuffer = StandardCharsets.UTF_8.encode(CharBuffer.wrap(chars));
     return Arrays.copyOf(byteBuffer.array(), byteBuffer.limit());
   }
 
   // https://stackoverflow.com/a/43996428
-  static char[] bytesToChars(byte[] bytes)
-  {
+  static char[] bytesToChars(byte[] bytes) {
     final CharBuffer charBuffer = StandardCharsets.UTF_8.decode(ByteBuffer.wrap(bytes));
     return Arrays.copyOf(charBuffer.array(), charBuffer.limit());
   }
-
 }

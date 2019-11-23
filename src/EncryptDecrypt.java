@@ -1,5 +1,4 @@
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -19,10 +18,12 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class EncryptDecrypt {
 
-  static SecretKey getSecretKey(byte[] salt) throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
+  static SecretKey getSecretKey(byte[] salt)
+      throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
     // Make the secret key using the master password
     SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
-    KeySpec passwordBasedEncryptionKeySpec = new PBEKeySpec(Master.getMasterPassword(), salt, 10000, 256);
+    KeySpec passwordBasedEncryptionKeySpec =
+        new PBEKeySpec(Master.getMasterPassword(), salt, 10000, 256);
     SecretKey secretKeyFromPBKDF2 = secretKeyFactory.generateSecret(passwordBasedEncryptionKeySpec);
 
     return new SecretKeySpec(secretKeyFromPBKDF2.getEncoded(), "AES");
@@ -32,9 +33,10 @@ public class EncryptDecrypt {
     return new IvParameterSpec(Arrays.copyOfRange(salt, 0, 16));
   }
 
-  static char[] encryptText(char[] id, char[] plainText) throws NoSuchAlgorithmException,
-          NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException,
-          BadPaddingException, IOException, InvalidKeySpecException, InvalidAlgorithmParameterException {
+  static char[] encryptText(char[] id, char[] plainText)
+      throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
+          IllegalBlockSizeException, BadPaddingException, IOException, InvalidKeySpecException,
+          InvalidAlgorithmParameterException {
 
     // Take the id, hash it, convert it to a byte[], and use it as a salt
     byte[] salt = CharArrayUtils.charsToBytes(Master.hash(id));
@@ -77,5 +79,4 @@ public class EncryptDecrypt {
 
     return decryptedCipherText;
   }
-
 }

@@ -1,4 +1,8 @@
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
@@ -16,16 +20,18 @@ public class Master {
     char[] salt = "TheBestSaltEver".toCharArray();
     char[] pepper = "AmishAndChristian".toCharArray();
 
-    char[] saltedPassword = CharArrayUtils
-        .concat(CharArrayUtils.concat(salt, masterPassword), pepper);
+    char[] saltedPassword =
+        CharArrayUtils.concat(CharArrayUtils.concat(salt, masterPassword), pepper);
 
     // Clear
     CharArrayUtils.clear(salt);
     CharArrayUtils.clear(pepper);
 
-    return CharArrayUtils.bytesToChars(Base64.getEncoder()
-        .encode(MessageDigest.getInstance("SHA-256")
-            .digest(CharArrayUtils.charsToBytes(saltedPassword))));
+    return CharArrayUtils.bytesToChars(
+        Base64.getEncoder()
+            .encode(
+                MessageDigest.getInstance("SHA-256")
+                    .digest(CharArrayUtils.charsToBytes(saltedPassword))));
   }
 
   static void setMasterPassword(char[] masterPassword) {
